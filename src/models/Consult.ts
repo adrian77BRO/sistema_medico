@@ -1,0 +1,20 @@
+export type Consult = {
+    id: string;
+    patient: string;
+    doctor: string;
+    suffering: string;
+    diagnosis: string;
+    weight: string;
+    height: string;
+    temperature: string;
+    pressure: string;
+    mass: string;
+    saturation: string;
+    dateAppoint: string;
+    dateConsult: string;
+    cost: string;
+    amount: string;
+    observations: string;
+    statusPaid: string;
+    statusConsult: string;
+};

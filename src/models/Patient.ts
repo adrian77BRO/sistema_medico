@@ -5,7 +5,7 @@ export type Patient = {
     email: string;
     phone: string;
     address: string;
-    familiar: string;
+    relative: string;
     gender: string;
     birth: string;
 };

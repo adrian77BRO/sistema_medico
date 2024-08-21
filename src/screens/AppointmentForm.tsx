@@ -14,7 +14,6 @@ export const AppointmentFormScreen: React.FC<AppointmentFormScreenProps> = ({ na
     const [timeApp, setTimeApp] = useState('');
     const [patient, setPatient] = useState('');
     const [doctor, setDoctor] = useState('');
-    const [status, setStatus] = useState('');
     const [observations, setObservations] = useState('');
     const [date, setDate] = useState(new Date());
     const [time, setTime] = useState(new Date());
@@ -127,9 +126,6 @@ const styles = StyleSheet.create({
         padding: 10,
         height: 80,
         textAlignVertical: 'top',
-    },
-    text: {
-        margin: 10,
     },
     button: {
         backgroundColor: 'green',

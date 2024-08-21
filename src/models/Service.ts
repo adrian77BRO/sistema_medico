@@ -7,5 +7,4 @@ export type Service = {
     statusWeb: boolean;
     statusSystem: boolean;
     cost: string;
-    image: string;
 }

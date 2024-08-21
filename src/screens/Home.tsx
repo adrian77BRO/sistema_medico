@@ -2,21 +2,22 @@ import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 
 export const HomeScreen: React.FC = () => {
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Bienvenido</Text>
             <Text style={styles.subtitle}>Adrián Pérez</Text>
             <View style={styles.box}>
-                <Text style={styles.appointmentText}>Citas</Text>
-                <Text style={styles.appointmentSubtext}>5</Text>
+                <Text style={styles.text}>Citas</Text>
+                <Text style={styles.subtext}>5</Text>
             </View>
             <View style={styles.box}>
-                <Text style={styles.appointmentText}>Consultas</Text>
-                <Text style={styles.appointmentSubtext}>20</Text>
+                <Text style={styles.text}>Consultas</Text>
+                <Text style={styles.subtext}>20</Text>
             </View>
             <View style={styles.box}>
-                <Text style={styles.appointmentText}>Pacientes</Text>
-                <Text style={styles.appointmentSubtext}>4</Text>
+                <Text style={styles.text}>Pacientes</Text>
+                <Text style={styles.subtext}>4</Text>
             </View>
         </View>
     );
@@ -45,14 +46,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginVertical: 10,
         borderRadius: 10,
-        
+
     },
-    appointmentText: {
+    text: {
         color: '#fff',
         fontSize: 25,
         fontWeight: 'bold'
     },
-    appointmentSubtext: {
+    subtext: {
         color: '#fff',
         fontSize: 30,
         marginTop: 10

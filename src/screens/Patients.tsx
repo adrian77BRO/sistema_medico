@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../rootTypes';
 
+import { RootStackParamList } from '../rootTypes';
 import { Patient } from '../models/Patient';
 import { PatientsTable } from '../components/PatientsTable';
 

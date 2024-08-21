@@ -30,9 +30,8 @@ export const AppointmentsScreen: React.FC<AppointmentsScreenProps> = ({ navigati
     return (
         <ScrollView>
             <View style={styles.container}>
-                <Text style={styles.title}>Atención médica a citas</Text>
                 <TouchableOpacity style={styles.button} onPress={handleAddAppointment}>
-                    <Text style={styles.buttonText}>{'Registrar cita'.toUpperCase()}</Text>
+                    <Text style={styles.buttonText}>{'Nueva cita'.toUpperCase()}</Text>
                 </TouchableOpacity>
                 <ScrollView horizontal style={{ marginTop: 20 }}>
                     <AppointmentsTable
@@ -51,11 +50,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: '#fff',
-    },
-    title: {
-        fontSize: 25,
-        textAlign: 'center',
-        marginBottom: 20,
     },
     button: {
         backgroundColor: 'green',

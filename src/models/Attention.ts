@@ -5,5 +5,4 @@ export type Attention = {
     symptoms: string;
     causes: string;
     status: boolean;
-    image: string;
 }

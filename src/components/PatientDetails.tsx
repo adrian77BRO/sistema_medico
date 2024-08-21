@@ -15,6 +15,7 @@ export const PatientDetailsModal: React.FC<{ patient: Patient; visible: boolean;
 
     const tableHead = ['Médico', 'Diagnóstico', 'Nota médica', 'Costo', 'Estatus', 'Acciones'];
     const columnWidths = [200, 200, 200, 100, 100, 100];
+    const bloods = ['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-']
 
     const tableData = [
         [<View style={styles.tableContainer}>
@@ -91,14 +92,9 @@ export const PatientDetailsModal: React.FC<{ patient: Patient; visible: boolean;
                         <View style={styles.pickerContainer}>
                             <Picker style={styles.picker} selectedValue={blood} onValueChange={(itemValue) => setBlood(itemValue)}>
                                 <Picker.Item label="Tipo de sangre" value="" />
-                                <Picker.Item label="A+" value="A+" />
-                                <Picker.Item label="A-" value="A-" />
-                                <Picker.Item label="AB+" value="AB+" />
-                                <Picker.Item label="AB-" value="AB-" />
-                                <Picker.Item label="B+" value="B+" />
-                                <Picker.Item label="B-" value="B-" />
-                                <Picker.Item label="O+" value="O+" />
-                                <Picker.Item label="O-" value="O-" />
+                                {bloods.map((blood, index) => (
+                                    <Picker.Item key={index} label={blood} value={blood} />
+                                ))}
                             </Picker>
                         </View>
                         <View style={styles.pickerContainer}>

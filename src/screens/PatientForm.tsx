@@ -15,7 +15,7 @@ export const PatientFormScreen: React.FC<PatientFormScreenProps> = ({ navigation
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
-    const [familiar, setFamiliar] = useState('');
+    const [relative, setRelative] = useState('');
     const [gender, setGender] = useState('');
     const [birth, setBirth] = useState('');
     const [date, setDate] = useState(new Date());
@@ -29,7 +29,7 @@ export const PatientFormScreen: React.FC<PatientFormScreenProps> = ({ navigation
             email,
             phone,
             address,
-            familiar,
+            relative,
             gender,
             birth,
         };
@@ -71,7 +71,7 @@ export const PatientFormScreen: React.FC<PatientFormScreenProps> = ({ navigation
                 </View>
                 <View style={styles.row}>
                     <TextInput style={styles.input} placeholder="Dirección" value={address} onChangeText={setAddress} />
-                    <TextInput style={styles.input} placeholder="Familiar responsable" value={familiar} onChangeText={setFamiliar} />
+                    <TextInput style={styles.input} placeholder="Familiar responsable" value={relative} onChangeText={setRelative} />
                 </View>
                 <View style={styles.pickerContainer}>
                     <Picker selectedValue={gender} style={styles.picker} onValueChange={(itemValue) => setGender(itemValue)}>
@@ -129,9 +129,6 @@ const styles = StyleSheet.create({
     },
     picker: {
         height: 50,
-    },
-    text: {
-        margin: 10,
     },
     button: {
         backgroundColor: 'green',
