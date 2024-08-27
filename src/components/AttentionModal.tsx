@@ -1,86 +1,160 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, Button, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, Alert, Button, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-import { Attention } from '../models/Attention';
+import { Atencion, NuevaAtencion } from '../models/Attention';
+import { EditAttentionModal } from './EditAttention';
+import {
+    getAllAttentions,
+    createAttention,
+    deleteAttention
+} from '../api/attentionEndpoint';
 
 interface AttentionModalProps {
     visible: boolean;
     onClose: () => void;
+    doctor: string;
 }
 
-export const AttentionModal: React.FC<AttentionModalProps> = ({ visible, onClose }) => {
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [symptoms, setSympstoms] = useState('');
-    const [causes, setCauses] = useState('');
-    const [status, setStatus] = useState(false);
-    const [attentions, setAttentions] = useState<Attention[]>([]);
+export const AttentionModal: React.FC<AttentionModalProps> = ({ visible, onClose, doctor }) => {
+    const [nombre, setNombre] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [sintomas, setSintomas] = useState('');
+    const [causas, setCausas] = useState('');
+    const [estatus, setEstatus] = useState(0);
+    const [atenciones, setAtenciones] = useState<Atencion[]>([]);
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedAttention, setSelectedAttention] = useState<Atencion | null>(null);
+
+    useEffect(() => {
+        getAttentions();
+    }, []);
+
+    const getAttentions = async () => {
+        const response = await getAllAttentions();
+        setAtenciones(response.data.atenciones);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+        getAttentions();
+    }
 
     const tableHead = ['Nombre', 'Descripción', 'Estatus', 'Acciones'];
     const columnWidths = [200, 250, 100, 100];
 
-    const tableData = attentions.map((attention) => [
+    const tableData = atenciones.map((atencion) => [
         <View style={styles.tableContainer}>
-            <Text>{attention.name}</Text>
+            <Text>{atencion.nombre}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text>{attention.description}</Text>
+            <Text>{atencion.descripcion}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text style={{ color: attention.status ? 'green' : 'red' }}>{attention.status ? 'ACTIVO' : 'INACTIVO'}</Text>
+            <Text style={{ color: atencion.estatus == 1 ? 'green' : 'red' }}>
+                {atencion.estatus == 1 ? 'ACTIVO' : 'INACTIVO'}
+            </Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="E" color='blue' />
-            <Button title="D" color="red" />
+            <Button title="E" color='blue' onPress={() => handleEdit(atencion)} />
+            <Button title="D" color="red" onPress={() => confirmDelete(atencion.id_atencion_medica)} />
         </View>
     ]);
 
-    const handleSave = () => {
-        const newAttention: Attention = {
-            id: Math.random().toString(),
-            name,
-            description,
-            symptoms,
-            causes,
-            status
+    const handleSave = async () => {
+        const nuevaAtencion: NuevaAtencion = {
+            nombre, descripcion, sintomas,
+            causas, estatus
         };
-        setAttentions((prev) => [...prev, newAttention]);
+        const response = await createAttention(nuevaAtencion);
+        Alert.alert(response.data.message, 'Nuevo registro');
+        getAttentions();
+
+        setNombre('');
+        setDescripcion('');
+        setSintomas('');
+        setCausas('');
+        setEstatus(0);
+    };
+
+    const handleEdit = (atencion: Atencion) => {
+        setSelectedAttention(atencion);
+        setModalVisible(true);
+    };
+
+    const confirmDelete = (id: number) => {
+        Alert.alert(
+            'Eliminar registro',
+            '¿Está seguro de querer eliminar este registro?',
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: () => handleDelete(id),
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
+    const handleDelete = async (id: number) => {
+        const response = await deleteAttention(id);
+        Alert.alert(response.data.message, 'Registro eliminado');
+        getAttentions();
     };
 
     return (
         <Modal
             visible={visible}
-            animationType="slide"
+            animationType='slide'
             onRequestClose={onClose}
         >
             <View style={styles.modalContent}>
                 <ScrollView>
                     <Text style={styles.modalTitle}>Atención médica</Text>
-                    <Text style={styles.modalText}>Médico: Armando Perea Orozco</Text>
+                    <Text style={styles.modalText}>Médico: {doctor}</Text>
 
-                    <TextInput style={styles.input} placeholder="Nombre" value={name} onChangeText={setName} />
+                    <TextInput style={styles.input} placeholder="Nombre" value={nombre} onChangeText={setNombre} />
                     <TextInput style={[styles.input, styles.bigText]} placeholder="Descripción"
-                        multiline={true} numberOfLines={4} value={description} onChangeText={setDescription} />
+                        multiline={true} numberOfLines={4} value={descripcion} onChangeText={setDescripcion} />
                     <TextInput style={[styles.input, styles.bigText]} placeholder="Síntomas"
-                        multiline={true} numberOfLines={4} value={symptoms} onChangeText={setSympstoms} />
+                        multiline={true} numberOfLines={4} value={sintomas} onChangeText={setSintomas} />
                     <TextInput style={[styles.input, styles.bigText]} placeholder="Causas"
-                        multiline={true} numberOfLines={4} value={causes} onChangeText={setCauses} />
+                        multiline={true} numberOfLines={4} value={causas} onChangeText={setCausas} />
                     <View style={styles.pickerContainer}>
-                        <Picker style={styles.picker} selectedValue={status} onValueChange={setStatus}>
+                        <Picker style={styles.picker} selectedValue={estatus} onValueChange={setEstatus}>
                             <Picker.Item label="Activo" value="" />
-                            <Picker.Item label="Sí" value={true} />
-                            <Picker.Item label="No" value={false} />
+                            <Picker.Item label="Sí" value={1} />
+                            <Picker.Item label="No" value={0} />
                         </Picker>
                     </View>
                     <TouchableOpacity style={[styles.button, { backgroundColor: 'green' }]} onPress={handleSave}>
                         <Text style={styles.buttonText}>{'Guardar'.toUpperCase()}</Text>
                     </TouchableOpacity>
 
+                    <Modal
+                        animationType="slide"
+                        transparent={false}
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                    >
+                        {selectedAttention && (
+                            <EditAttentionModal
+                                atencion={selectedAttention}
+                                onClose={closeModal}
+                            />
+                        )}
+                    </Modal>
+
                     <Text style={styles.modalTitle}>Información general</Text>
                     <ScrollView horizontal>
                         <View style={styles.container}>
-                            {attentions.length > 0 ? (
+                            {atenciones.length > 0 ? (
                                 <>
                                     <View style={[styles.rows, styles.headerRow]}>
                                         {tableHead.map((header, index) => (
@@ -197,7 +271,7 @@ const styles = StyleSheet.create({
     },
     rows: {
         flexDirection: 'row',
-        height: 50,
+        height: 150,
         borderBottomWidth: 1,
         borderLeftWidth: 1,
         borderColor: '#34dbb8',

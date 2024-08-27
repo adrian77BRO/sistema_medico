@@ -51,7 +51,7 @@ export const updateProfile = async (profile: {
                 'Authorization': `${token}`,
             },
         });
-        return response.data;
+        return response;
     } catch (error: any) {
         throw error.response?.data;
     }

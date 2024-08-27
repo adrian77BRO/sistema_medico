@@ -1,69 +1,98 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, Button, TextInput, Platform, Pressable, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, Alert, Button, TextInput, Pressable, Platform, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { Schedule } from '../models/Schedule';
+import { Horario, NuevoHorario } from '../models/Schedule';
+import { EditScheduleModal } from './EditSchedule';
+import {
+    getAllSchedules,
+    createSchedule,
+    deleteSchedule
+} from '../api/scheduleEndpoint';
 
 interface SchedulesModalProps {
     visible: boolean;
     onClose: () => void;
+    doctor: string;
 }
 
-export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose }) => {
-    const [name, setName] = useState('');
-    const [day, setDay] = useState('');
-    const [startTime, setStartTime] = useState('');
-    const [endTime, setEndTime] = useState('');
-    const [schedules, setSchedules] = useState<Schedule[]>([]);
+export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose, doctor }) => {
+    const [dia, setDia] = useState('');
+    const [hora_inicio, setHora_inicio] = useState('');
+    const [hora_termino, setHora_termino] = useState('');
+    const [horarios, setHorarios] = useState<Horario[]>([]);
 
     const [showStartTime, setShowStartTime] = useState(false);
     const [showEndTime, setShowEndTime] = useState(false);
     const [stime, setStime] = useState(new Date());
     const [etime, setEtime] = useState(new Date());
 
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedSchedule, setSelectedSchedule] = useState<Horario | null>(null);
+
+    useEffect(() => {
+        getSchedules();
+    }, []);
+
+    const getSchedules = async () => {
+        const response = await getAllSchedules();
+        setHorarios(response.data.horarios);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+        getSchedules();
+    }
+
     const tableHead = ['Día', 'Hora inicio', 'Hora fin', 'Acciones'];
     const columnWidths = [100, 100, 100, 100];
-    const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const semana = [
+        { dia: 'Lunes', numero: 1 },
+        { dia: 'Martes', numero: 2 },
+        { dia: 'Miércoles', numero: 3 },
+        { dia: 'Jueves', numero: 4 },
+        { dia: 'Viernes', numero: 5 },
+        { dia: 'Sábado', numero: 6 },
+        { dia: 'Domingo', numero: 7 }
+    ];
 
-    const tableData = schedules.map((schedule) => [
+    const tableData = horarios.map((horario) => [
         <View style={styles.tableContainer}>
-            <Text>{schedule.day}</Text>
+            <Text>
+                {horario.dia == 1 && 'Lunes'}
+                {horario.dia == 2 && 'Martes'}
+                {horario.dia == 3 && 'Miércoles'}
+                {horario.dia == 4 && 'Jueves'}
+                {horario.dia == 5 && 'Viernes'}
+                {horario.dia == 6 && 'Sábado'}
+                {horario.dia == 7 && 'Domingo'}
+            </Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text>{schedule.startTime}</Text>
+            <Text>{horario.hora_inicio}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text>{schedule.endTime}</Text>
+            <Text>{horario.hora_termino}</Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="E" color='blue' />
-            <Button title="D" color="red" />
+            <Button title="E" color='blue' onPress={() => handleEdit(horario)} />
+            <Button title="D" color="red" onPress={() => confirmDelete(horario.id_horario)} />
         </View>
     ]);
-
-    const handleSave = () => {
-        const newSchedule: Schedule = {
-            id: Math.random().toString(),
-            day,
-            startTime,
-            endTime
-        };
-        setSchedules((prev) => [...prev, newSchedule]);
-    };
 
     const onChangeStartTime = (event: any, selectedTime: Date | undefined) => {
         const currentTime = selectedTime || stime;
         setShowStartTime(Platform.OS === 'ios');
         setStime(currentTime);
-        setStartTime(formatTime(currentTime));
+        setHora_inicio(formatTime(currentTime));
     };
 
     const onChangeEndTime = (event: any, selectedTime: Date | undefined) => {
         const currentTime = selectedTime || etime;
         setShowEndTime(Platform.OS === 'ios');
         setEtime(currentTime);
-        setEndTime(formatTime(currentTime));
+        setHora_termino(formatTime(currentTime));
     };
 
     const formatTime = (date: Date) => {
@@ -80,28 +109,71 @@ export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose
         setShowEndTime(true);
     };
 
+    const handleSave = async () => {
+        const nuevoHorario: NuevoHorario = {
+            dia: Number(dia), hora_inicio, hora_termino
+        };
+        const response = await createSchedule(nuevoHorario);
+        Alert.alert(response.data.message, 'Nuevo registro');
+        getSchedules();
+
+        setDia('');
+        setHora_inicio('');
+        setHora_termino('');
+    };
+
+    const handleEdit = (horario: Horario) => {
+        setSelectedSchedule(horario);
+        setModalVisible(true);
+    };
+
+    const confirmDelete = (id: number) => {
+        Alert.alert(
+            'Eliminar registro',
+            '¿Está seguro de querer eliminar este registro?',
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: () => handleDelete(id),
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
+    const handleDelete = async (id: number) => {
+        const response = await deleteSchedule(id);
+        Alert.alert(response.data.message, 'Registro eliminado');
+        getSchedules();
+    };
+
     return (
         <Modal
             visible={visible}
-            animationType="slide"
+            animationType='slide'
             onRequestClose={onClose}
         >
             <View style={styles.modalContent}>
                 <ScrollView>
                     <Text style={styles.modalTitle}>Horarios</Text>
-                    <Text style={styles.modalText}>Médico: Armando Perea Orozco</Text>
+                    <Text style={styles.modalText}>Médico: {doctor}</Text>
 
                     <View style={styles.pickerContainer}>
-                        <Picker style={styles.picker} selectedValue={day} onValueChange={setDay}>
+                        <Picker style={styles.picker} selectedValue={dia} onValueChange={setDia}>
                             <Picker.Item label="Día" value="" />
-                            {days.map((day, index) => (
-                                <Picker.Item key={index} label={day} value={day} />
+                            {semana.map((dia, index) => (
+                                <Picker.Item key={index} label={dia.dia} value={dia.numero} />
                             ))}
                         </Picker>
                     </View>
                     <Pressable onPress={showStartTimepicker}>
                         <View>
-                            <TextInput style={styles.input} value={startTime ? formatTime(stime) : 'Hora inicio'} editable={false} />
+                            <TextInput style={styles.input} value={hora_inicio ? formatTime(stime) : 'Hora inicio'} editable={false} />
                             {showStartTime && (
                                 <DateTimePicker
                                     value={stime || new Date()}
@@ -114,7 +186,7 @@ export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose
                     </Pressable>
                     <Pressable onPress={showEndTimepicker}>
                         <View>
-                            <TextInput style={styles.input} value={endTime ? formatTime(etime) : 'Hora fin'} editable={false} />
+                            <TextInput style={styles.input} value={hora_termino ? formatTime(etime) : 'Hora fin'} editable={false} />
                             {showEndTime && (
                                 <DateTimePicker
                                     value={etime || new Date()}
@@ -129,10 +201,24 @@ export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose
                         <Text style={styles.buttonText}>{'Guardar'.toUpperCase()}</Text>
                     </TouchableOpacity>
 
+                    <Modal
+                        animationType="slide"
+                        transparent={false}
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                    >
+                        {selectedSchedule && (
+                            <EditScheduleModal
+                                horario={selectedSchedule}
+                                onClose={closeModal}
+                            />
+                        )}
+                    </Modal>
+
                     <Text style={styles.modalTitle}>Información general</Text>
                     <ScrollView horizontal>
                         <View style={styles.container}>
-                            {schedules.length > 0 ? (
+                            {horarios.length > 0 ? (
                                 <>
                                     <View style={[styles.rows, styles.headerRow]}>
                                         {tableHead.map((header, index) => (
@@ -214,6 +300,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
     },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
     input: {
         flex: 2,
         marginVertical: 10,
@@ -222,6 +312,14 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         marginBottom: 10,
+    },
+    bigText: {
+        borderWidth: 1,
+        borderColor: '#34dbb8',
+        borderRadius: 5,
+        padding: 10,
+        height: 80,
+        textAlignVertical: 'top',
     },
     pickerContainer: {
         flex: 2,

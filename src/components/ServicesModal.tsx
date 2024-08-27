@@ -1,114 +1,191 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, Button, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, Alert, Button, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-import { Service } from '../models/Service';
+import { Servicio, NuevoServicio } from '../models/Service';
+import { EditServiceModal } from './EditService';
+import {
+    getAllServices,
+    createService,
+    deleteService
+} from '../api/serviceEndpoint';
 
-interface ServicesModalProps {
+interface ServiceModalProps {
     visible: boolean;
     onClose: () => void;
+    doctor: string;
 }
 
-export const ServicesModal: React.FC<ServicesModalProps> = ({ visible, onClose }) => {
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [order, setOrder] = useState('');
-    const [cost, setCost] = useState('');
-    const [status, setStatus] = useState(false);
-    const [statusWeb, setStatusWeb] = useState(false);
-    const [statusSystem, setStatusSystem] = useState(false);
-    const [services, setServices] = useState<Service[]>([]);
+export const ServicesModal: React.FC<ServiceModalProps> = ({ visible, onClose, doctor }) => {
+    const [nombre, setNombre] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [orden, setOrden] = useState('');
+    const [estatus, setEstatus] = useState(0);
+    const [estatus_web, setEstatus_web] = useState(0);
+    const [estatus_sistema, setEstatus_sistema] = useState(0);
+    const [costo, setCosto] = useState('');
+    const [servicios, setServicios] = useState<Servicio[]>([]);
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedService, setSelectedService] = useState<Servicio | null>(null);
+
+    useEffect(() => {
+        getServices();
+    }, []);
+
+    const getServices = async () => {
+        const response = await getAllServices();
+        setServicios(response.data.servicios);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+        getServices();
+    }
 
     const tableHead = ['Servicio', 'Orden', 'Estatus', 'Web', 'Sistema', 'Acciones'];
     const columnWidths = [200, 60, 100, 100, 100, 100];
 
-    const tableData = services.map((service) => [
+    const tableData = servicios.map((servicio) => [
         <View style={styles.tableContainer}>
-            <Text>{service.name}</Text>
+            <Text>{servicio.nombre}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text>{service.order}</Text>
+            <Text>{servicio.orden}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text style={{ color: service.status ? 'green' : 'red' }}>{service.status ? 'ACTIVO' : 'INACTIVO'}</Text>
+            <Text style={{ color: servicio.estatus == 1 ? 'green' : 'red' }}>
+                {servicio.estatus == 1 ? 'ACTIVO' : 'INACTIVO'}
+            </Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text style={{ color: service.statusWeb ? 'green' : 'red' }}>{service.statusWeb ? 'ACTIVO' : 'INACTIVO'}</Text>
+            <Text style={{ color: servicio.estatus_web == 1 ? 'green' : 'red' }}>
+                {servicio.estatus_web == 1 ? 'ACTIVO' : 'INACTIVO'}
+            </Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text style={{ color: service.statusSystem ? 'green' : 'red' }}>{service.statusSystem ? 'ACTIVO' : 'INACTIVO'}</Text>
+            <Text style={{ color: servicio.estatus_sistema == 1 ? 'green' : 'red' }}>
+                {servicio.estatus_sistema == 1 ? 'ACTIVO' : 'INACTIVO'}
+            </Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="E" color='blue' />
-            <Button title="D" color="red" />
+            <Button title="E" color='blue' onPress={() => handleEdit(servicio)} />
+            <Button title="D" color="red" onPress={() => confirmDelete(servicio.id_servicio)} />
         </View>
     ]);
 
-    const handleSave = () => {
-        const newService: Service = {
-            id: Math.random().toString(),
-            name,
-            description,
-            order,
-            status,
-            statusWeb,
-            statusSystem,
-            cost
+    const handleSave = async () => {
+        const nuevoServicio: NuevoServicio = {
+            nombre, descripcion, orden: Number(orden), estatus,
+            estatus_web, estatus_sistema, costo: Number(costo)
         };
-        setServices((prev) => [...prev, newService]);
+        const response = await createService(nuevoServicio);
+        Alert.alert(response.data.message, 'Nuevo registro');
+        getServices();
+
+        setNombre('');
+        setDescripcion('');
+        setOrden('');
+        setEstatus(0);
+        setEstatus_web(0);
+        setEstatus_sistema(0);
+    };
+
+    const handleEdit = (servicio: Servicio) => {
+        setSelectedService(servicio);
+        setModalVisible(true);
+    };
+
+    const confirmDelete = (id: number) => {
+        Alert.alert(
+            'Eliminar registro',
+            '¿Está seguro de querer eliminar este registro?',
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: () => handleDelete(id),
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
+    const handleDelete = async (id: number) => {
+        const response = await deleteService(id);
+        Alert.alert(response.data.message, 'Registro eliminado');
+        getServices();
     };
 
     return (
         <Modal
             visible={visible}
-            animationType="slide"
+            animationType='slide'
             onRequestClose={onClose}
         >
             <View style={styles.modalContent}>
                 <ScrollView>
                     <Text style={styles.modalTitle}>Servicios</Text>
-                    <Text style={styles.modalText}>Médico: Armando Perea Orozco</Text>
+                    <Text style={styles.modalText}>Médico: {doctor}</Text>
 
-                    <TextInput style={styles.input} placeholder="Nombre" value={name} onChangeText={setName} />
+                    <TextInput style={styles.input} placeholder="Nombre" value={nombre} onChangeText={setNombre} />
                     <TextInput style={[styles.input, styles.bigText]} placeholder="Descripción"
-                        multiline={true} numberOfLines={4} value={description} onChangeText={setDescription} />
+                        multiline={true} numberOfLines={4} value={descripcion} onChangeText={setDescripcion} />
                     <View style={styles.row}>
                         <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker} selectedValue={status} onValueChange={setStatus}>
+                            <Picker style={styles.picker} selectedValue={estatus} onValueChange={setEstatus}>
                                 <Picker.Item label="Activo" value="" />
-                                <Picker.Item label="Sí" value={true} />
-                                <Picker.Item label="No" value={false} />
+                                <Picker.Item label="Sí" value={1} />
+                                <Picker.Item label="No" value={0} />
                             </Picker>
                         </View>
                         <TextInput style={styles.input} placeholder="Orden" keyboardType="numeric"
-                            value={order} onChangeText={setOrder} />
+                            value={orden} onChangeText={setOrden} />
                     </View>
                     <View style={styles.row}>
                         <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker} selectedValue={statusWeb} onValueChange={setStatusWeb}>
+                            <Picker style={styles.picker} selectedValue={estatus_web} onValueChange={setEstatus_web}>
                                 <Picker.Item label="Activo" value="" />
-                                <Picker.Item label="Sí" value={true} />
-                                <Picker.Item label="No" value={false} />
+                                <Picker.Item label="Sí" value={1} />
+                                <Picker.Item label="No" value={0} />
                             </Picker>
                         </View>
                         <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker} selectedValue={statusSystem} onValueChange={setStatusSystem}>
+                            <Picker style={styles.picker} selectedValue={estatus_sistema} onValueChange={setEstatus_sistema}>
                                 <Picker.Item label="Activo" value="" />
-                                <Picker.Item label="Sí" value={true} />
-                                <Picker.Item label="No" value={false} />
+                                <Picker.Item label="Sí" value={1} />
+                                <Picker.Item label="No" value={0} />
                             </Picker>
                         </View>
                     </View>
                     <TextInput style={styles.input} placeholder="Costo" keyboardType="numeric"
-                        value={cost} onChangeText={setCost} />
+                        value={costo} onChangeText={setCosto} />
                     <TouchableOpacity style={[styles.button, { backgroundColor: 'green' }]} onPress={handleSave}>
                         <Text style={styles.buttonText}>{'Guardar'.toUpperCase()}</Text>
                     </TouchableOpacity>
 
+                    <Modal
+                        animationType="slide"
+                        transparent={false}
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                    >
+                        {selectedService && (
+                            <EditServiceModal
+                                servicio={selectedService}
+                                onClose={closeModal}
+                            />
+                        )}
+                    </Modal>
+
                     <Text style={styles.modalTitle}>Información general</Text>
                     <ScrollView horizontal>
                         <View style={styles.container}>
-                            {services.length > 0 ? (
+                            {servicios.length > 0 ? (
                                 <>
                                     <View style={[styles.rows, styles.headerRow]}>
                                         {tableHead.map((header, index) => (

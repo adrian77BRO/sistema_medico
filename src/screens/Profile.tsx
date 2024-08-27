@@ -4,7 +4,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Picker } from '@react-native-picker/picker';
 
 import { StackParamList } from '../types';
-import { Perfil } from '../models/User';
 import { getProfile, updateProfile } from '../api/userEndpoint';
 import { Estado } from '../models/State';
 import { Municipio } from '../models/Town';
@@ -42,12 +41,6 @@ export const ProfileScreen: React.FC<ConsultFormScreenProps> = () => {
 
     const [estados, setEstados] = useState<Estado[]>([]);
     const [municipios, setMunicipios] = useState<Municipio[]>([]);
-    /*const [perfil, setPerfil] = useState<Perfil>({
-        municipio: '', estado: '', nombre: '', apellidos: '', correo: '',
-        telefono: '', cedula: '', cedula_especialidad: '', cedula_subespecialidad: '',
-        especialidad: '', telefono_urgencias: '', whatsapp: '', direccion: '',
-        facebook: '', twitter: '', instagram: '', web: '', sobre_mi: '', experiencia: '',
-    });*/
 
     const [modalAttention, setModalAttention] = useState(false);
     const [modalServices, setModalServices] = useState(false);
@@ -103,20 +96,6 @@ export const ProfileScreen: React.FC<ConsultFormScreenProps> = () => {
         setModalSchedules(true);
     };
 
-    const handleSave = async () => {
-        try {
-            const profileData = {
-                id_municipio: Number(municipio), correo, telefono, telefono_urgencias, direccion, whatsapp,
-                facebook, twitter, instagram, web, sobre_mi, experiencia
-            };
-            await updateProfile(profileData);
-            Alert.alert('Éxito', 'Perfil actualizado correctamente');
-        } catch (error: any) {
-            Alert.alert('Error', error.message);
-            console.error(error);
-        }
-    };
-
     const handlePhoneNumberChange = (input: string) => {
         const formattedInput = input.replace(/[^0-9]/g, '');
 
@@ -138,6 +117,20 @@ export const ProfileScreen: React.FC<ConsultFormScreenProps> = () => {
 
         if (formattedInput.length <= 10) {
             setWhatsapp(formattedInput);
+        }
+    };
+
+    const handleSave = async () => {
+        try {
+            const profileData = {
+                id_municipio: Number(municipio), correo, telefono, telefono_urgencias, direccion, whatsapp,
+                facebook, twitter, instagram, web, sobre_mi, experiencia
+            };
+            const response = await updateProfile(profileData);
+            Alert.alert(response.data.message, 'Perfil actualizado');
+        } catch (error: any) {
+            Alert.alert('Error', error.message);
+            console.error(error);
         }
     };
 
@@ -192,6 +185,7 @@ export const ProfileScreen: React.FC<ConsultFormScreenProps> = () => {
                     <TextInput style={styles.input} placeholder="Especialidad" value={cedula_especialidad} editable={false} />
                     <TextInput style={styles.input} placeholder="Subespecialidad" value={cedula_subespecialidad} editable={false} />
                 </View>
+                <TextInput style={styles.input} placeholder="Especialidad" value={especialidad} editable={false} />
                 <View style={styles.row}>
                     <TextInput style={styles.input} placeholder="Teléfono de urgencia" keyboardType="numeric" maxLength={10}
                         value={telefono_urgencias} onChangeText={handleUrgencyNumberChange} />
@@ -228,14 +222,17 @@ export const ProfileScreen: React.FC<ConsultFormScreenProps> = () => {
             <AttentionModal
                 visible={modalAttention}
                 onClose={() => setModalAttention(false)}
+                doctor = {nombre + ' ' + apellidos}
             />
             <ServicesModal
                 visible={modalServices}
                 onClose={() => setModalServices(false)}
+                doctor = {nombre + ' ' + apellidos}
             />
             <SchedulesModal
                 visible={modalSchedules}
                 onClose={() => setModalSchedules(false)}
+                doctor = {nombre + ' ' + apellidos}
             />
         </View>
     );
