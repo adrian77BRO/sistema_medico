@@ -1,78 +1,76 @@
-import React, { useState } from 'react';
+/*import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 
-import { Patient } from '../models/Patient';
+import { Paciente } from '../models/Patient';
 import { PatientDetailsModal } from '../components/PatientDetails';
 import { PaymentsPatientModal } from './PaymentsPatient';
+import { getAllPatients } from '../api/patientEndpoint';
 
-interface PatientsTableProps {
-    patients: Patient[];
-    onEdit: (patient: Patient) => void;
-    onDelete: (id: string) => void;
-}
-
-export const PatientsTable: React.FC<PatientsTableProps> = ({ patients, onEdit, onDelete }) => {
+export const PatientsTable: React.FC = () => {
+    const [pacientes, setPacientes] = useState<Paciente[]>([]);
     const [modalDetails, setModalDetails] = useState(false);
     const [modalPayments, setModalPayments] = useState(false);
-    const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+    const [selectedPatient, setSelectedPatient] = useState<Paciente | null>(null);
 
-    const handleViewDetails = (patient: Patient) => {
-        setSelectedPatient(patient);
+    useEffect(() => {
+        getPatients();
+    }, []);
+
+    const getPatients = async () => {
+        const response = await getAllPatients();
+        setPacientes(response.data.pacientes);
+    };
+
+    const handleViewDetails = (paciente: Paciente) => {
+        setSelectedPatient(paciente);
         setModalDetails(true);
     };
 
-    const handleViewPayments = (patient: Patient) => {
-        setSelectedPatient(patient);
+    const handleViewPayments = (paciente: Paciente) => {
+        setSelectedPatient(paciente);
         setModalPayments(true);
     };
 
-    const tableHead = [
-        'Nombre',
-        'Información',
-        'Info. pagos',
-        'Por atender',
-        'Atendidos',
-        'Cancelados',
-        'Acciones'
-    ];
+    const tableHead = ['Nombre', 'Información', 'Info. pagos', 'Por atender', 'Atendidos', 'Cancelados', 'Acciones'];
+    const columnWidths = [200, 200, 200, 100, 100, 100, 200];
 
-    const tableData = patients.map((patient) => [
+    const tableData = pacientes.map((paciente) => [
         <View style={styles.tableContainer}>
-            <Text style={{ padding: 4 }}>{patient.name} {patient.lastName}</Text>
-            <Text style={{ backgroundColor: 'green', color: '#fff', borderRadius: 30, padding: 4 }}>{patient.gender}</Text>
+            <Text style={{ padding: 4 }}>{paciente.nombre} {paciente.apellidos}</Text>
+            <Text style={{ backgroundColor: 'green', color: '#fff', borderRadius: 30, padding: 4 }}>{paciente.sexo}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text>Email: {patient.email}</Text>
-            <Text>Tel: {patient.phone}</Text>
-            <Text>Nacimiento: {patient.birth}</Text>
+            <Text>Email: {paciente.correo}</Text>
+            <Text>Tel: {paciente.telefono}</Text>
+            <Text>Nacimiento: {paciente.fecha_nacimiento}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text>Monto total: $1,100.00</Text>
-            <Text>Monto pagado: $600.00</Text>
-            <Text>Monto restante: $500.00</Text>
+            <Text>Monto total: $0</Text>
+            <Text>Monto pagado: $0</Text>
+            <Text>Monto restante: $0</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'orange' }}>1</Text>
+            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'orange' }}>0</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'green' }}>2</Text>
+            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'green' }}>0</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'red' }}>3</Text>
+            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'red' }}>0</Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="P" onPress={() => handleViewPayments(patient)} color='orange' />
-            <Button title="I" onPress={() => handleViewDetails(patient)} color='green' />
-            <Button title="E" onPress={() => onEdit(patient)} color='blue' />
-            <Button title="D" onPress={() => onDelete(patient.id)} color="red" />
+            <Button title="P" onPress={() => handleViewPayments(paciente)} color='orange' />
+            <Button title="I" onPress={() => handleViewDetails(paciente)} color='green' />
+            <Button title="E" color='blue' />
+            <Button title="D" color="red" />
         </View>
     ]);
 
-    const columnWidths = [200, 200, 200, 100, 100, 100, 200];
+
 
     return (
         <View style={styles.container}>
-            {patients.length > 0 ? (
+            {pacientes.length > 0 ? (
                 <>
                     <View style={[styles.row, styles.headerRow]}>
                         {tableHead.map((header, index) => (
@@ -148,4 +146,4 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold',
     },
-});
+});*/

@@ -5,8 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 
 import { RootStackParamList } from '../rootTypes';
 import { loginUser } from '../api/userEndpoint';
-import { setToken } from '../api/token';
-import { setIdUser } from '../api/userStorage';
+import { setToken } from '../storage/token';
+import { setIdUser } from '../storage/userStorage';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
     RootStackParamList,

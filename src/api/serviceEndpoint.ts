@@ -1,6 +1,6 @@
 import { NuevoServicio } from "../models/Service";
 import { api } from "./endpoint";
-import { getToken } from "./token";
+import { getToken } from "../storage/token";
 
 const url = 'servicios';
 

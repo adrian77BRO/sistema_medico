@@ -9,8 +9,11 @@ import { RootStackParamList } from './src/rootTypes';
 import { HomeScreen } from './src/screens/Home';
 import { ProfileScreen } from './src/screens/Profile';
 import { CalendarScreen } from './src/screens/Calendar';
-import { PatientsScreen } from './src/screens/Patients';
+
+import { PatientsListScreen } from './src/screens/PatientsList';
 import { PatientFormScreen } from './src/screens/PatientForm';
+import { EditPatientScreen } from './src/screens/EditPatient';
+
 import { AppointmentsScreen } from './src/screens/Appointments';
 import { AppointmentFormScreen } from './src/screens/AppointmentForm';
 import { ConsultsScreen } from './src/screens/Consults';
@@ -24,14 +27,19 @@ const PatientsNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="PatientsScreen"
-        component={PatientsScreen}
+        name="PatientsListScreen"
+        component={PatientsListScreen}
         options={{ title: 'Listado de pacientes' }}
       />
       <Stack.Screen
         name="PatientFormScreen"
         component={PatientFormScreen}
         options={{ title: 'Registrar paciente' }}
+      />
+      <Stack.Screen
+        name="EditPatientScreen"
+        component={EditPatientScreen}
+        options={{ title: 'Editar paciente' }}
       />
     </Stack.Navigator>
   );

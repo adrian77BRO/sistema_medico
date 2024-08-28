@@ -1,9 +1,9 @@
 import { api } from "./endpoint";
 import { getToken } from "../storage/token";
 
-const url = 'citas';
+const url = 'consultas';
 
-export const getCountAppointment = async () => {
+export const getCountConsult = async () => {
     try {
         const token = await getToken();
         const response = await api.get(`/${url}/count`, {

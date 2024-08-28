@@ -5,16 +5,19 @@ import { Perfil } from '../models/User';
 import { getProfile } from '../api/userEndpoint';
 import { getCountPatient } from '../api/patientEndpoint';
 import { getCountAppointment } from '../api/appointmentEndpoint';
+import { getCountConsult } from '../api/consultEndpoint';
 
 export const HomeScreen: React.FC = () => {
     const [perfil, setPerfil] = useState<Perfil | null>(null);
     const [numPacientes, setNumPacientes] = useState(0);
     const [numCitas, setNumCitas] = useState(0);
+    const [numConsultas, setNumConsultas] = useState(0);
 
     useEffect(() => {
         getProfileUser();
         getPatients();
         getAppointments();
+        getConsults();
     }, []);
 
     const getProfileUser = async () => {
@@ -32,6 +35,11 @@ export const HomeScreen: React.FC = () => {
         setNumCitas(response.data.count);
     };
 
+    const getConsults = async () => {
+        const response = await getCountConsult();
+        setNumConsultas(response.data.count);
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Bienvenido</Text>
@@ -42,7 +50,7 @@ export const HomeScreen: React.FC = () => {
             </View>
             <View style={styles.box}>
                 <Text style={styles.text}>Consultas</Text>
-                <Text style={styles.subtext}>20</Text>
+                <Text style={styles.subtext}>{numConsultas}</Text>
             </View>
             <View style={styles.box}>
                 <Text style={styles.text}>Pacientes</Text>

@@ -1,25 +1,100 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, Button, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, Alert, Button, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import Accordion from 'react-native-collapsible/Accordion';
 import { Picker } from '@react-native-picker/picker';
 
-import { Patient } from '../models/Patient';
-import { History } from '../models/History';
+import { Paciente } from '../models/Patient';
+import { Historial, HistorialResponse, NuevoHistorial } from '../models/History';
+import { Sangre } from '../models/Blood';
+import {
+    getHistoryById,
+    getAllBloods,
+    createHistory,
+    updateHistory
+} from '../api/historyEndpoint';
 
-export const PatientDetailsModal: React.FC<{ patient: Patient; visible: boolean; onClose: () => void; }> = ({ patient, visible, onClose }) => {
+interface PatientDetailsProps {
+    paciente: Paciente;
+    visible: boolean;
+    onClose: () => void;
+}
+
+export const PatientDetailsModal: React.FC<PatientDetailsProps> = ({ paciente, visible, onClose }) => {
+    const [tipo_sangre, setTipo_sangre] = useState('');
+    const [antecedentes_heredofamiliares, setAntecedentes_heredofamiliares] = useState('');
+    const [alergias, setAlergias] = useState('');
+    const [patologias, setPatologias] = useState('');
+    const [observaciones, setObservaciones] = useState('');
+    const [intervencion_quirurgica, setIntervencion_quirurgica] = useState('');
+    const [transfucion_sanguinea, setTransfucion_sanguinea] = useState('');
+    const [donacion_sanguinea, setDonacion_sanguinea] = useState('');
+    const [historial, setHistorial] = useState<HistorialResponse | null>(null);
+    const [tipos_sangre, setTipos_sangre] = useState<Sangre[]>([]);
+
     const [activeSections, setActiveSections] = useState<number[]>([]);
-    const [blood, setBlood] = useState('');
-    const [surgery, setSurgery] = useState('');
-    const [transfusion, setTransfusion] = useState('');
-    const [donation, setDonation] = useState('');
+    const [message, setMessage] = useState('');
 
     const tableHead = ['Médico', 'Diagnóstico', 'Nota médica', 'Costo', 'Estatus', 'Acciones'];
     const columnWidths = [200, 200, 200, 100, 100, 100];
-    const bloods = ['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-']
+
+    const formatDateISO = (dateISO: string) => {
+        const date = new Date(dateISO);
+
+        const year = date.getUTCFullYear();
+        const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+        const day = date.getUTCDate().toString().padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    }
+
+    useEffect(() => {
+        getBloods();
+    }, []);
+
+    /*const getHistory = async () => {
+        const response = await getHistoryById(paciente.id_paciente);
+        if (response.data.historial) {
+            setHistorial(response.data.historial);
+            console.log(response.data.historial);
+        } else {
+            setMessage(response.data.message);
+            console.log(response.data.message);
+        }
+    };*/
+
+    const getBloods = async () => {
+        const response = await getAllBloods();
+        setTipos_sangre(response.data.tipos_sangre);
+    };
+
+    /*const handleSave = async () => {
+        const nuevoHistorial: NuevoHistorial = {
+            id_tipo_sangre: tipo_sangre,
+            intervencion_quirurgica: Number(intervencion_quirurgica),
+            transfucion_sanguinea: Number(transfucion_sanguinea),
+            donacion_sanguinea: Number(donacion_sanguinea),
+            antecedentes_heredofamiliares, alergias,
+            patologias, observaciones
+        };
+        const response = await createHistory(nuevoHistorial);
+        Alert.alert(response.data.message, 'Historial clínico guardado');
+    };
+
+    const handleEdit = async () => {
+        const nuevoHistorial: NuevoHistorial = {
+            id_tipo_sangre: tipo_sangre,
+            intervencion_quirurgica: Number(intervencion_quirurgica),
+            transfucion_sanguinea: Number(transfucion_sanguinea),
+            donacion_sanguinea: Number(donacion_sanguinea),
+            antecedentes_heredofamiliares, alergias,
+            patologias, observaciones
+        };
+        const response = await updateHistory(paciente.id_paciente, nuevoHistorial);
+        Alert.alert(response.data.message, 'Historial clínico guardado');
+    };*/
 
     const tableData = [
         [<View style={styles.tableContainer}>
-            <Text>Armando Perea Orozco</Text>
             <Text>Consulta: 18/08/2024</Text>
         </View>,
         <View style={styles.tableContainer}>
@@ -39,7 +114,6 @@ export const PatientDetailsModal: React.FC<{ patient: Patient; visible: boolean;
             <Button title="D" color="red" />
         </View>],
         [<View style={styles.tableContainer}>
-            <Text>Armando Perea Orozco</Text>
             <Text>Consulta: 18/08/2024</Text>
         </View>,
         <View style={styles.tableContainer}>
@@ -64,15 +138,18 @@ export const PatientDetailsModal: React.FC<{ patient: Patient; visible: boolean;
         {
             title: 'Información general',
             content: (
-                <View>
-                    <Text>NOMBRE: {patient.name} {patient.lastName}</Text>
-                    <Text>EMAIL: {patient.email}</Text>
-                    <Text>FECHA DE NACIMIENTO: {patient.birth}</Text>
-                    <Text>TELÉFONO: {patient.phone}</Text>
-                    <Text>SEXO: {patient.gender}</Text>
-                    <Text>POR ATENDER: 1</Text>
-                    <Text>ATENDIDOS: 2</Text>
-                    <Text>CANCELADOS: 0</Text>
+                <View style={styles.infoContainer}>
+                    <Text style={styles.text}>NOMBRE: {paciente.nombre} {paciente.apellidos}</Text>
+                    <Text style={styles.text}>EMAIL: {paciente.correo}</Text>
+                    <Text style={styles.text}>FECHA DE NACIMIENTO: {formatDateISO(paciente.fecha_nacimiento)}</Text>
+                    <Text style={styles.text}>TELÉFONO: {paciente.telefono}</Text>
+                    <Text style={styles.text}>SEXO:
+                        {paciente.sexo == 1 && ' Hombre'}
+                        {paciente.sexo == 2 && ' Mujer'}
+                    </Text>
+                    <Text style={styles.text}>POR ATENDER: 1</Text>
+                    <Text style={styles.text}>ATENDIDOS: 2</Text>
+                    <Text style={styles.text}>CANCELADOS: 0</Text>
                 </View>
             ),
         },
@@ -81,49 +158,56 @@ export const PatientDetailsModal: React.FC<{ patient: Patient; visible: boolean;
             content: (
                 <View>
                     <TextInput style={styles.bigText} placeholder="Antecedentes heredofamiliares"
-                        multiline={true} numberOfLines={4} />
+                        value={antecedentes_heredofamiliares}
+                        onChangeText={setAntecedentes_heredofamiliares} multiline={true} numberOfLines={4} />
                     <View style={styles.row}>
-                        <TextInput style={styles.input} placeholder="Alergias" />
-                        <TextInput style={styles.input} placeholder="Patologías" />
+                        <TextInput style={styles.input} placeholder="Alergias"
+                            value={alergias}
+                            onChangeText={setAlergias} />
+                        <TextInput style={styles.input} placeholder="Patologías"
+                            value={patologias}
+                            onChangeText={setPatologias} />
                     </View>
                     <TextInput style={styles.bigText} placeholder="Observaciones"
-                        multiline={true} numberOfLines={4} />
+                        value={observaciones}
+                        onChangeText={setObservaciones} multiline={true} numberOfLines={4} />
                     <View style={styles.row}>
                         <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker} selectedValue={blood} onValueChange={(itemValue) => setBlood(itemValue)}>
+                            <Picker style={styles.picker} selectedValue={tipo_sangre} onValueChange={setTipo_sangre}>
                                 <Picker.Item label="Tipo de sangre" value="" />
-                                {bloods.map((blood, index) => (
-                                    <Picker.Item key={index} label={blood} value={blood} />
+                                {tipos_sangre.map((sangre, index) => (
+                                    <Picker.Item key={index} label={sangre.nombre} value={sangre.id_tipo_sangre} />
                                 ))}
                             </Picker>
                         </View>
                         <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker} selectedValue={surgery} onValueChange={(itemValue) => setSurgery(itemValue)}>
+                            <Picker style={styles.picker} selectedValue={intervencion_quirurgica}
+                                onValueChange={setIntervencion_quirurgica}>
                                 <Picker.Item label="Intervención quirúrgica" value="" />
-                                <Picker.Item label="Sí" value="Sí" />
-                                <Picker.Item label="No" value="No" />
+                                <Picker.Item label="Sí" value={0} />
+                                <Picker.Item label="No" value={1} />
                             </Picker>
                         </View>
                     </View>
                     <View style={styles.row}>
                         <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker} selectedValue={transfusion} onValueChange={(itemValue) => setTransfusion(itemValue)}>
+                            <Picker style={styles.picker} selectedValue={transfucion_sanguinea}
+                                onValueChange={setTransfucion_sanguinea}>
                                 <Picker.Item label="Transfusión sanguínea" value="" />
-                                <Picker.Item label="Sí" value="Sí" />
-                                <Picker.Item label="No" value="No" />
+                                <Picker.Item label="Sí" value={0} />
+                                <Picker.Item label="No" value={1} />
                             </Picker>
                         </View>
                         <View style={styles.pickerContainer}>
-                            <Picker style={styles.picker} selectedValue={donation} onValueChange={(itemValue) => setDonation(itemValue)}>
+                            <Picker style={styles.picker} selectedValue={donacion_sanguinea}
+                                onValueChange={setDonacion_sanguinea}>
                                 <Picker.Item label="Donación sanguínea" value="" />
-                                <Picker.Item label="Sí" value="Sí" />
-                                <Picker.Item label="No" value="No" />
+                                <Picker.Item label="Sí" value={0} />
+                                <Picker.Item label="No" value={1} />
                             </Picker>
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.button} onPress={() =>
-                        console.log('Cambios actualizados')
-                    }>
+                    <TouchableOpacity style={styles.button}>
                         <Text style={styles.buttonText}>{'Actualizar'.toUpperCase()}</Text>
                     </TouchableOpacity>
                 </View>
@@ -176,7 +260,7 @@ export const PatientDetailsModal: React.FC<{ patient: Patient; visible: boolean;
         >
             <View style={styles.modalContent}>
                 <ScrollView style={{ marginTop: 20 }}>
-                    <Text style={styles.modalTitle}>Información del paciente: {patient.name} {patient.lastName}</Text>
+                    <Text style={styles.modalTitle}>Información del paciente: {paciente.nombre} {paciente.apellidos}</Text>
                     <Accordion
                         sections={sections}
                         activeSections={activeSections}
@@ -205,6 +289,12 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         textAlign: 'center',
     },
+    text: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        margin: 10,
+        textAlign: 'center',
+    },
     header: {
         backgroundColor: 'white',
         padding: 10,
@@ -218,6 +308,11 @@ const styles = StyleSheet.create({
     content: {
         padding: 20,
         backgroundColor: '#fff',
+    },
+    infoContainer: {
+        backgroundColor: '#acffee',
+        padding: 10,
+        borderRadius: 20
     },
     tableContainer: {
         flex: 1,
@@ -306,10 +401,6 @@ const styles = StyleSheet.create({
     },
     picker: {
         height: 50,
-    },
-    text: {
-        margin: 6,
-        textAlign: 'center',
     },
     textHeader: {
         textAlign: 'center',

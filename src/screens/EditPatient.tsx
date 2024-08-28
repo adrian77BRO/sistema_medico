@@ -6,43 +6,32 @@ import { Picker } from '@react-native-picker/picker';
 
 import { RootStackParamList } from '../rootTypes';
 import { NuevoPaciente } from '../models/Patient';
-import { NuevoHistorial } from '../models/History';
-import { createPatient } from '../api/patientEndpoint';
-import { createHistory } from '../api/historyEndpoint';
+import { updatePatient } from '../api/patientEndpoint';
 
-type PatientFormScreenProps = NativeStackScreenProps<RootStackParamList, 'PatientFormScreen'>;
+type EditPatientScreenProps = NativeStackScreenProps<RootStackParamList, 'EditPatientScreen'>;
 
-export const PatientFormScreen: React.FC<PatientFormScreenProps> = ({ navigation }) => {
-    const [nombre, setNombre] = useState('');
-    const [apellidos, setApellidos] = useState('');
-    const [correo, setCorreo] = useState('');
-    const [telefono, setTelefono] = useState('');
-    const [direccion, setDireccion] = useState('');
-    const [familiar_responsable, setFamiliar_responsable] = useState('');
-    const [sexo, setSexo] = useState('');
-    const [fecha_nacimiento, setFecha_nacimiento] = useState('');
+export const EditPatientScreen: React.FC<EditPatientScreenProps> = ({ route, navigation }) => {
+    const { paciente } = route.params;
+    const [nombre, setNombre] = useState(paciente.nombre);
+    const [apellidos, setApellidos] = useState(paciente.apellidos);
+    const [correo, setCorreo] = useState(paciente.correo);
+    const [telefono, setTelefono] = useState(paciente.telefono);
+    const [direccion, setDireccion] = useState(paciente.direccion);
+    const [familiar_responsable, setFamiliar_responsable] = useState(paciente.familiar_responsable);
+    const [sexo, setSexo] = useState(paciente.sexo);
+    const [fecha_nacimiento, setFecha_nacimiento] = useState(paciente.fecha_nacimiento);
 
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
 
     const handleSave = async () => {
-        const nuevoPaciente: NuevoPaciente = {
+        const pacienteEditar: NuevoPaciente = {
             nombre, apellidos, correo, telefono,
             direccion, familiar_responsable,
             sexo: Number(sexo), fecha_nacimiento
         };
-        const response = await createPatient(nuevoPaciente);
-        Alert.alert(response.data.message, 'Nuevo registro');
-
-        setNombre('');
-        setApellidos('');
-        setCorreo('');
-        setTelefono('');
-        setDireccion('');
-        setFamiliar_responsable('');
-        setSexo('');
-        setFecha_nacimiento('');
-
+        const response = await updatePatient(paciente.id_paciente, pacienteEditar);
+        Alert.alert(response.data.message, 'Registro actualizado');
         navigation.goBack();
     };
 
@@ -77,6 +66,7 @@ export const PatientFormScreen: React.FC<PatientFormScreenProps> = ({ navigation
         <View style={styles.container}>
             <ScrollView style={{ marginTop: 10 }}>
                 <Text style={styles.title}>Datos del paciente</Text>
+                <Text style={styles.subtitle}>{paciente.nombre} {paciente.apellidos}</Text>
                 <View style={styles.row}>
                     <TextInput style={styles.input} placeholder="Nombre(s)" value={nombre} onChangeText={setNombre} />
                     <TextInput style={styles.input} placeholder="Apellidos" value={apellidos} onChangeText={setApellidos} />
@@ -124,6 +114,11 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 25,
+        textAlign: 'center',
+        marginBottom: 20
+    },
+    subtitle: {
+        fontSize: 20,
         textAlign: 'center',
         marginBottom: 20
     },

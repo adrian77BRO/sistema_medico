@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, Modal, Button, TextInput, Pressable, ScrollView, Platform, TouchableOpacity, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { Patient } from '../models/Patient';
+import { Paciente } from '../models/Patient';
 import { Payment } from '../models/Payment';
 
-export const PaymentsPatientModal: React.FC<{ patient: Patient; visible: boolean; onClose: () => void; }> = ({ patient, visible, onClose }) => {
+export const PaymentsPatientModal: React.FC<{ patient: Paciente; visible: boolean; onClose: () => void; }> = ({ patient, visible, onClose }) => {
     const [datePayment, setDatePayment] = useState('');
     const [date, setDate] = useState(new Date());
     const [amount, setAmount] = useState('');
