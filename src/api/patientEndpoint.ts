@@ -49,6 +49,21 @@ export const getAllPatients = async () => {
     }
 }
 
+export const getPatientsByName = async (nombre: string) => {
+    try {
+        const token = await getToken();
+        const response = await api.get(`/${url}/nombre/${nombre}`, {
+            headers: {
+                'Authorization': `${token}`,
+            },
+        });
+        return response;
+    } catch (error: any) {
+        console.log(error.response);
+        throw error.response?.data;
+    }
+}
+
 export const createPatient = async (paciente: NuevoPaciente) => {
     try {
         const token = await getToken();

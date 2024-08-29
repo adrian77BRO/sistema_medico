@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+/*import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 
 import { Appointment } from '../models/Appointment';
@@ -110,4 +110,4 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold',
     },
-});
+});*/

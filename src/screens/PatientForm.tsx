@@ -6,9 +6,7 @@ import { Picker } from '@react-native-picker/picker';
 
 import { RootStackParamList } from '../rootTypes';
 import { NuevoPaciente } from '../models/Patient';
-import { NuevoHistorial } from '../models/History';
 import { createPatient } from '../api/patientEndpoint';
-import { createHistory } from '../api/historyEndpoint';
 
 type PatientFormScreenProps = NativeStackScreenProps<RootStackParamList, 'PatientFormScreen'>;
 
@@ -107,9 +105,6 @@ export const PatientFormScreen: React.FC<PatientFormScreenProps> = ({ navigation
                 </Pressable>
                 <TouchableOpacity style={styles.button} onPress={handleSave}>
                     <Text style={styles.buttonText}>{'Guardar'.toUpperCase()}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
-                    <Text style={styles.buttonText}>{'Cancelar'.toUpperCase()}</Text>
                 </TouchableOpacity>
             </ScrollView>
         </View>

@@ -1,4 +1,4 @@
-import { Appointment } from "./models/Appointment";
+import { Cita } from "./models/Appointment";
 import { Consult } from "./models/Consult";
 import { Paciente } from "./models/Patient";
 
@@ -8,8 +8,9 @@ export type RootStackParamList = {
     PatientsListScreen: undefined;
     PatientFormScreen: undefined;
     EditPatientScreen: { paciente: Paciente };
-    AppointmentsScreen: undefined;
-    AppointmentFormScreen: { onSave: (newAppointment: Appointment) => void };
+    AppointmentsListScreen: undefined;
+    AppointmentFormScreen: undefined;
+    EditAppointmentScreen: { cita: Cita };
     ConsultsScreen: undefined;
     ConsultFormScreen: { onSave: (newConsult: Consult) => void };
 };

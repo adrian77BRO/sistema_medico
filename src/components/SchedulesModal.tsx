@@ -25,8 +25,8 @@ export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose
 
     const [showStartTime, setShowStartTime] = useState(false);
     const [showEndTime, setShowEndTime] = useState(false);
-    const [stime, setStime] = useState(new Date());
-    const [etime, setEtime] = useState(new Date());
+    const [startTime, setStartTime] = useState(new Date());
+    const [endTime, setEndTime] = useState(new Date());
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedSchedule, setSelectedSchedule] = useState<Horario | null>(null);
@@ -82,16 +82,16 @@ export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose
     ]);
 
     const onChangeStartTime = (event: any, selectedTime: Date | undefined) => {
-        const currentTime = selectedTime || stime;
+        const currentTime = selectedTime || startTime;
         setShowStartTime(Platform.OS === 'ios');
-        setStime(currentTime);
+        setStartTime(currentTime);
         setHora_inicio(formatTime(currentTime));
     };
 
     const onChangeEndTime = (event: any, selectedTime: Date | undefined) => {
-        const currentTime = selectedTime || etime;
+        const currentTime = selectedTime || endTime;
         setShowEndTime(Platform.OS === 'ios');
-        setEtime(currentTime);
+        setEndTime(currentTime);
         setHora_termino(formatTime(currentTime));
     };
 
@@ -173,10 +173,10 @@ export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose
                     </View>
                     <Pressable onPress={showStartTimepicker}>
                         <View>
-                            <TextInput style={styles.input} value={hora_inicio ? formatTime(stime) : 'Hora inicio'} editable={false} />
+                            <TextInput style={styles.input} value={hora_inicio ? formatTime(startTime) : 'Hora inicio'} editable={false} />
                             {showStartTime && (
                                 <DateTimePicker
-                                    value={stime || new Date()}
+                                    value={startTime || new Date()}
                                     mode="time"
                                     display="spinner"
                                     onChange={onChangeStartTime}
@@ -186,10 +186,10 @@ export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose
                     </Pressable>
                     <Pressable onPress={showEndTimepicker}>
                         <View>
-                            <TextInput style={styles.input} value={hora_termino ? formatTime(etime) : 'Hora fin'} editable={false} />
+                            <TextInput style={styles.input} value={hora_termino ? formatTime(endTime) : 'Hora fin'} editable={false} />
                             {showEndTime && (
                                 <DateTimePicker
-                                    value={etime || new Date()}
+                                    value={endTime || new Date()}
                                     mode="time"
                                     display="spinner"
                                     onChange={onChangeEndTime}

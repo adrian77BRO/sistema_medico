@@ -67,32 +67,6 @@ export const PatientDetailsModal: React.FC<PatientDetailsProps> = ({ paciente, v
         setTipos_sangre(response.data.tipos_sangre);
     };
 
-    /*const handleSave = async () => {
-        const nuevoHistorial: NuevoHistorial = {
-            id_tipo_sangre: tipo_sangre,
-            intervencion_quirurgica: Number(intervencion_quirurgica),
-            transfucion_sanguinea: Number(transfucion_sanguinea),
-            donacion_sanguinea: Number(donacion_sanguinea),
-            antecedentes_heredofamiliares, alergias,
-            patologias, observaciones
-        };
-        const response = await createHistory(nuevoHistorial);
-        Alert.alert(response.data.message, 'Historial clínico guardado');
-    };
-
-    const handleEdit = async () => {
-        const nuevoHistorial: NuevoHistorial = {
-            id_tipo_sangre: tipo_sangre,
-            intervencion_quirurgica: Number(intervencion_quirurgica),
-            transfucion_sanguinea: Number(transfucion_sanguinea),
-            donacion_sanguinea: Number(donacion_sanguinea),
-            antecedentes_heredofamiliares, alergias,
-            patologias, observaciones
-        };
-        const response = await updateHistory(paciente.id_paciente, nuevoHistorial);
-        Alert.alert(response.data.message, 'Historial clínico guardado');
-    };*/
-
     const tableData = [
         [<View style={styles.tableContainer}>
             <Text>Consulta: 18/08/2024</Text>

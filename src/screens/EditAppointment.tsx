@@ -1,31 +1,40 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Platform, Alert, FlatList, Button, Pressable, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Platform, FlatList, Alert, Button, Pressable, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { PatientDetailsModal } from '../components/PatientDetails';
 import { RootStackParamList } from '../rootTypes';
-import { NuevaCita } from '../models/Appointment';
-import { Paciente } from '../models/Patient';
-import { createAppointment } from '../api/appointmentEndpoint';
-import { getPatientsByName } from '../api/patientEndpoint';
+import { EditarCita } from '../models/Appointment';
+import { updateAppointment } from '../api/appointmentEndpoint';
 
-type AppointmentFormScreenProps = NativeStackScreenProps<RootStackParamList, 'AppointmentFormScreen'>;
+type EditAppointmentScreenProps = NativeStackScreenProps<RootStackParamList, 'EditAppointmentScreen'>;
 
-export const AppointmentFormScreen: React.FC<AppointmentFormScreenProps> = ({ navigation }) => {
-    const [fecha, setFecha] = useState('');
-    const [hora, setHora] = useState('');
-    const [paciente, setPaciente] = useState('');
-    const [observaciones, setObservaciones] = useState('');
+export const EditAppointmentScreen: React.FC<EditAppointmentScreenProps> = ({ route, navigation }) => {
+    const { cita } = route.params;
+    const [paciente, setPaciente] = useState(cita.paciente);
+    const [observaciones, setObservaciones] = useState(cita.observaciones);
 
     const [date, setDate] = useState(new Date());
     const [time, setTime] = useState(new Date());
     const [showDate, setShowDate] = useState(false);
     const [showTime, setShowTime] = useState(false);
-    const [selectedIdPat, setSelectedIdPat] = useState(0);
-    const [selectedPatient, setSelectedPatient] = useState<Paciente | null>(null);
-    const [pacientes, setPacientes] = useState<Paciente[]>([]);
-    const [modalDetails, setModalDetails] = useState(false);
+
+    const formatEditDate = (fecha: string) => {
+        const date = new Date(fecha);
+        const year = date.getUTCFullYear();
+        const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+        const day = date.getUTCDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    const formatEditTime = (hora: string) => {
+        const date = new Date(hora);
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    };
+    const [fecha, setFecha] = useState(formatEditDate(cita.fecha));
+    const [hora, setHora] = useState(formatEditTime(cita.fecha));
 
     const formatDate = (date: Date) => {
         const year = date.getUTCFullYear();
@@ -62,65 +71,24 @@ export const AppointmentFormScreen: React.FC<AppointmentFormScreenProps> = ({ na
         setShowTime(true);
     };
 
-    const handleViewDetails = () => {
-        setModalDetails(true);
-    };
-
     const handleSave = async () => {
-        const nuevaCita: NuevaCita = {
-            id_paciente: selectedIdPat,
+        const editarCita: EditarCita = {
             fecha: fecha + ' ' + hora,
             observaciones
         };
-        const response = await createAppointment(nuevaCita);
-        Alert.alert(response.data.message, 'Nuevo registro');
+        const response = await updateAppointment(cita.id_cita, editarCita);
+        Alert.alert(response.data.message, 'Registro actualizado');
 
         setFecha('');
         setObservaciones('');
         navigation.goBack();
     };
 
-    const handleSearch = async (nombre: string) => {
-        setPaciente(nombre);
-        if (nombre) {
-            const response = await getPatientsByName(nombre);
-            setPacientes(response.data.pacientes);
-        } else {
-            setPacientes([]);
-            setSelectedPatient(null);
-        }
-    };
-
-    const selectPatient = (paciente: Paciente) => {
-        setSelectedPatient(paciente);
-        setSelectedIdPat(paciente.id_paciente);
-        setPacientes([]);
-        setPaciente(paciente.nombre + ' ' + paciente.apellidos);
-    };
-
     return (
         <View style={styles.container}>
             <ScrollView style={{ marginTop: 10 }}>
-                <Text style={styles.title}>Nueva cita</Text>
-                <TextInput style={styles.input} placeholder="Buscar paciente por nombre" value={paciente} onChangeText={handleSearch} />
-                {selectedPatient && (
-                    <TouchableOpacity style={[styles.button, { backgroundColor: 'blue', margin: 10 }]} onPress={handleViewDetails}>
-                        <Text style={styles.buttonText}>INFO DEL PACIENTE</Text>
-                    </TouchableOpacity>
-                )}
-                {pacientes.length > 0 && (
-                    <FlatList
-                        data={pacientes}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) =>
-                            <View style={styles.row}>
-                                <Text style={{ marginTop: 10 }}>{item.nombre} {item.apellidos}</Text>
-                                <Button title="S" color="blue" onPress={() => selectPatient(item)} />
-                            </View>
-                        }
-                        scrollEnabled={false}
-                    />
-                )}
+                <Text style={styles.title}>Editar cita</Text>
+                <TextInput style={styles.input} placeholder="Buscar paciente por nombre" value={paciente} editable={false} />
                 <Pressable onPress={showDatepicker}>
                     <TextInput style={styles.input} value={fecha ? date.toLocaleDateString('es-MX') : 'Fecha cita'} editable={false} />
                     {showDate && (
@@ -151,13 +119,6 @@ export const AppointmentFormScreen: React.FC<AppointmentFormScreenProps> = ({ na
                     <Text style={styles.buttonText}>{'Guardar'.toUpperCase()}</Text>
                 </TouchableOpacity>
             </ScrollView>
-            {selectedPatient && (
-                <PatientDetailsModal
-                    visible={modalDetails}
-                    onClose={() => setModalDetails(false)}
-                    paciente={selectedPatient}
-                />
-            )}
         </View>
     );
 };

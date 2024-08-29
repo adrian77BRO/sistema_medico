@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { Perfil } from '../models/User';
 import { getProfile } from '../api/userEndpoint';
@@ -19,6 +20,14 @@ export const HomeScreen: React.FC = () => {
         getAppointments();
         getConsults();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            getPatients();
+            getAppointments();
+            getConsults();
+        }, [])
+    );
 
     const getProfileUser = async () => {
         const response = await getProfile();

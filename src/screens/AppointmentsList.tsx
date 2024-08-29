@@ -2,37 +2,39 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Button, Alert, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
 
-import { Paciente } from '../models/Patient';
-import { PatientDetailsModal } from '../components/PatientDetails';
+import { Cita } from '../models/Appointment';
 import {
-    deletePatient,
-    getAllPatients,
-    getPatientsByName
-} from '../api/patientEndpoint';
+    deleteAppointment,
+    cancelAppointment,
+    getAllAppointments,
+    getAppointmentsByStatus,
+    getAppointmentsByPatient
+} from '../api/appointmentEndpoint';
 import { RootStackParamList } from '../rootTypes';
 
-type PatientsListScreenProps = NativeStackScreenProps<RootStackParamList, 'PatientsListScreen'>;
+type AppointmentsListScreenProps = NativeStackScreenProps<RootStackParamList, 'AppointmentsListScreen'>;
 
-export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigation }) => {
-    const [pacientes, setPacientes] = useState<Paciente[]>([]);
-    const [nombre, setNombre] = useState('');
-    const [modalDetails, setModalDetails] = useState(false);
-    const [selectedPatient, setSelectedPatient] = useState<Paciente | null>(null);
+export const AppointmentsListScreen: React.FC<AppointmentsListScreenProps> = ({ navigation }) => {
+    const [citas, setCitas] = useState<Cita[]>([]);
+    const [paciente, setPaciente] = useState('');
+    const [fecha, setFecha] = useState('');
+    const [estatus, setEstatus] = useState(0);
 
     useEffect(() => {
-        getPatients();
+        getAppointments();
     }, []);
 
     useFocusEffect(
         useCallback(() => {
-            getPatients();
+            getAppointments();
         }, [])
     );
 
-    const getPatients = async () => {
-        const response = await getAllPatients();
-        setPacientes(response.data.pacientes);
+    const getAppointments = async () => {
+        const response = await getAllAppointments();
+        setCitas(response.data.citas);
     };
 
     const confirmDelete = (id: number) => {
@@ -40,99 +42,118 @@ export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigati
             'Eliminar registro',
             '¿Está seguro de querer eliminar este registro?',
             [
-                {
-                    text: 'Cancelar',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Eliminar',
-                    style: 'destructive',
-                    onPress: () => handleDelete(id),
-                },
+                { text: 'Cancelar', style: 'cancel', },
+                { text: 'Eliminar', style: 'destructive', onPress: () => handleDelete(id) }
+            ],
+            { cancelable: true }
+        );
+    };
+
+    const handleCancel = async (id: number) => {
+        const response = await cancelAppointment(id);
+        Alert.alert(response.data.message, 'Cita cancelada');
+        getAppointments();
+    };
+
+    const confirmCancel = (id: number) => {
+        Alert.alert(
+            'Cancelar cita',
+            '¿Está seguro de querer cancelar esta cita?',
+            [
+                { text: 'No', style: 'cancel', },
+                { text: 'Sí', style: 'destructive', onPress: () => handleCancel(id) }
             ],
             { cancelable: true }
         );
     };
 
     const handleDelete = async (id: number) => {
-        const response = await deletePatient(id);
+        const response = await deleteAppointment(id);
         Alert.alert(response.data.message, 'Registro eliminado');
-        getPatients();
-    };
-
-    const handleViewDetails = (paciente: Paciente) => {
-        setSelectedPatient(paciente);
-        setModalDetails(true);
+        getAppointments();
     };
 
     const handleSearch = async (nombre: string) => {
-        setNombre(nombre);
+        setPaciente(nombre);
         if (nombre) {
-            const response = await getPatientsByName(nombre);
-            setPacientes(response.data.pacientes);
+            const response = await getAppointmentsByPatient(nombre);
+            setCitas(response.data.citas);
         } else {
-            getPatients();
+            getAppointments();
         }
+        setEstatus(1);
+    };
+
+    const handleStatus = async (estatus: number) => {
+        setEstatus(estatus);
+        if (estatus == 1) {
+            getAppointments();
+        } else {
+            const response = await getAppointmentsByStatus(estatus);
+            setCitas(response.data.citas);
+        }
+        setPaciente('');
     };
 
     const formatDateISO = (dateISO: string) => {
         const date = new Date(dateISO);
-
         const year = date.getUTCFullYear();
         const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
         const day = date.getUTCDate().toString().padStart(2, '0');
-
-        return `${year}-${month}-${day}`;
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
 
-    const tableHead = ['Nombre', 'Información', 'Info. pagos', 'Por atender', 'Atendidos', 'Cancelados', 'Acciones'];
-    const columnWidths = [200, 200, 200, 100, 100, 100, 150];
+    const tableHead = ['Confirmado', 'Paciente', 'Fecha y hora', 'Médico', 'Estatus', 'Acciones'];
+    const columnWidths = [100, 200, 150, 200, 100, 100, 200];
 
-    const tableData = pacientes.map((paciente) => [
+    const tableData = citas.map((cita) => [
         <View style={styles.tableContainer}>
-            <Text style={{ padding: 4 }}>{paciente.nombre} {paciente.apellidos}</Text>
-            <Text style={{ backgroundColor: paciente.sexo == 1 ? 'lightblue' : 'pink',
-                color: '#fff', borderRadius: 30, padding: 4 }}>
-                {paciente.sexo == 1 && 'Hombre'}
-                {paciente.sexo == 2 && 'Mujer'}
+
+        </View>,
+        <View style={styles.tableContainer}>
+            <Text>{cita.paciente}</Text>
+        </View>,
+        <View style={styles.tableContainer}>
+            <Text>{formatDateISO(cita.fecha)}</Text>
+        </View>,
+        <View style={styles.tableContainer}>
+            <Text>{cita.medico}</Text>
+        </View>,
+        <View style={styles.tableContainer}>
+            <Text style={{ color: cita.estatus == 0 ? 'orange' : 'red' }}>
+                {cita.estatus == 0 && 'Por atender'}
+                {cita.estatus == 2 && 'Cancelado'}
             </Text>
         </View>,
-        <View style={styles.tableContainer}>
-            <Text>Email: {paciente.correo}</Text>
-            <Text>Tel: {paciente.telefono}</Text>
-            <Text>Nacimiento: {formatDateISO(paciente.fecha_nacimiento)}</Text>
-        </View>,
-        <View style={styles.tableContainer}>
-            <Text>Monto total: $0</Text>
-            <Text>Monto pagado: $0</Text>
-            <Text>Monto restante: $0</Text>
-        </View>,
-        <View style={styles.tableContainer}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'orange' }}>0</Text>
-        </View>,
-        <View style={styles.tableContainer}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'green' }}>0</Text>
-        </View>,
-        <View style={styles.tableContainer}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'red' }}>0</Text>
-        </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="I" onPress={() => handleViewDetails(paciente)} color='green' />
-            <Button title="E" color='blue' onPress={() => navigation.navigate('EditPatientScreen', { paciente })} />
-            <Button title="D" color="red" onPress={() => confirmDelete(paciente.id_paciente)} />
+            <Button title="E" color='blue' onPress={() => navigation.navigate('EditAppointmentScreen', { cita })} />
+            {cita.estatus == 0 && <Button title="X" color="red" onPress={() => confirmCancel(cita.id_cita)} />}
+            {cita.estatus == 2 && <Button title="D" color="red" onPress={() => confirmDelete(cita.id_cita)} />}
         </View>
     ]);
 
     return (
         <ScrollView>
             <View style={styles.container}>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('PatientFormScreen')} >
-                    <Text style={styles.buttonText}>{'Registrar paciente'.toUpperCase()}</Text>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AppointmentFormScreen')} >
+                    <Text style={styles.buttonText}>{'Nueva cita'.toUpperCase()}</Text>
                 </TouchableOpacity>
-                <TextInput style={styles.input} placeholder="Buscar por nombre" value={nombre} onChangeText={handleSearch} />
+                <View style={styles.inputRow}>
+                    <TextInput style={styles.input} placeholder="Buscar por nombre" value={paciente} onChangeText={handleSearch} />
+                    <View style={styles.pickerContainer}>
+                        <Picker selectedValue={estatus} style={styles.picker} onValueChange={handleStatus}>
+                            <Picker.Item label="Por atender" value={0} />
+                            <Picker.Item label="Todos" value={1} />
+                            <Picker.Item label="Cancelado" value={2} />
+                        </Picker>
+                    </View>
+                </View>
+                <TextInput style={styles.input} placeholder="Buscar por fecha" value={fecha} onChangeText={setFecha} />
                 <ScrollView horizontal style={{ marginTop: 20 }}>
                     <View>
-                        {pacientes.length > 0 ? (
+                        {citas.length > 0 ? (
                             <>
                                 <View style={[styles.row, styles.headerRow]}>
                                     {tableHead.map((header, index) => (
@@ -154,13 +175,6 @@ export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigati
                                         ))}
                                     </View>
                                 ))}
-                                {selectedPatient && (
-                                    <PatientDetailsModal
-                                        visible={modalDetails}
-                                        onClose={() => setModalDetails(false)}
-                                        paciente={selectedPatient}
-                                    />
-                                )}
                             </>
                         ) :
                             <Text>{'No se encontraron resultados'.toUpperCase()}</Text>
@@ -219,9 +233,25 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 10,
     },
+    inputRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    pickerContainer: {
+        flex: 2,
+        marginVertical: 10,
+        borderWidth: 1,
+        borderColor: '#34dbb8',
+        borderRadius: 5,
+        marginBottom: 10,
+        overflow: 'hidden',
+    },
+    picker: {
+        height: 50,
+    },
     row: {
         flexDirection: 'row',
-        height: 100,
+        height: 50,
         borderBottomWidth: 1,
         borderLeftWidth: 1,
         borderColor: '#34dbb8',

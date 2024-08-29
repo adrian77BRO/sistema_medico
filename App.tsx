@@ -14,8 +14,10 @@ import { PatientsListScreen } from './src/screens/PatientsList';
 import { PatientFormScreen } from './src/screens/PatientForm';
 import { EditPatientScreen } from './src/screens/EditPatient';
 
-import { AppointmentsScreen } from './src/screens/Appointments';
+import { AppointmentsListScreen } from './src/screens/AppointmentsList';
 import { AppointmentFormScreen } from './src/screens/AppointmentForm';
+import { EditAppointmentScreen } from './src/screens/EditAppointment';
+
 import { ConsultsScreen } from './src/screens/Consults';
 import { ConsultFormScreen } from './src/screens/ConsultForm';
 import { LoginScreen } from './src/screens/Login';
@@ -49,14 +51,19 @@ const AppointmentsNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="AppointmentsScreen"
-        component={AppointmentsScreen}
+        name="AppointmentsListScreen"
+        component={AppointmentsListScreen}
         options={{ title: 'Listado de citas' }}
       />
       <Stack.Screen
         name="AppointmentFormScreen"
         component={AppointmentFormScreen}
         options={{ title: 'Registrar cita' }}
+      />
+      <Stack.Screen
+        name="EditAppointmentScreen"
+        component={EditAppointmentScreen}
+        options={{ title: 'Editar cita' }}
       />
     </Stack.Navigator>
   );

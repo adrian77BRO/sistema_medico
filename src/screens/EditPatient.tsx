@@ -19,18 +19,26 @@ export const EditPatientScreen: React.FC<EditPatientScreenProps> = ({ route, nav
     const [direccion, setDireccion] = useState(paciente.direccion);
     const [familiar_responsable, setFamiliar_responsable] = useState(paciente.familiar_responsable);
     const [sexo, setSexo] = useState(paciente.sexo);
-    const [fecha_nacimiento, setFecha_nacimiento] = useState(paciente.fecha_nacimiento);
 
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
 
+    const formatEditDate = (fecha: string) => {
+        const date = new Date(fecha);
+        const year = date.getUTCFullYear();
+        const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+        const day = date.getUTCDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    const [fecha_nacimiento, setFecha_nacimiento] = useState(formatEditDate(paciente.fecha_nacimiento));
+
     const handleSave = async () => {
-        const pacienteEditar: NuevoPaciente = {
+        const editarPaciente: NuevoPaciente = {
             nombre, apellidos, correo, telefono,
             direccion, familiar_responsable,
             sexo: Number(sexo), fecha_nacimiento
         };
-        const response = await updatePatient(paciente.id_paciente, pacienteEditar);
+        const response = await updatePatient(paciente.id_paciente, editarPaciente);
         Alert.alert(response.data.message, 'Registro actualizado');
         navigation.goBack();
     };
@@ -46,7 +54,6 @@ export const EditPatientScreen: React.FC<EditPatientScreenProps> = ({ route, nav
         const year = date.getUTCFullYear();
         const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
         const day = date.getUTCDate().toString().padStart(2, '0');
-
         return `${year}-${month}-${day}`;
     }
 
@@ -89,7 +96,7 @@ export const EditPatientScreen: React.FC<EditPatientScreenProps> = ({ route, nav
                     </Picker>
                 </View>
                 <Pressable onPress={showDatepicker}>
-                    <TextInput style={styles.input} value={fecha_nacimiento ? date.toLocaleDateString('en-US')
+                    <TextInput style={styles.input} value={fecha_nacimiento ? date.toLocaleDateString('es-MX')
                         : 'Fecha de nacimiento'} editable={false} />
                     {show && (
                         <DateTimePicker value={date || new Date()} mode="date" display="spinner" onChange={onChange} />
@@ -97,9 +104,6 @@ export const EditPatientScreen: React.FC<EditPatientScreenProps> = ({ route, nav
                 </Pressable>
                 <TouchableOpacity style={styles.button} onPress={handleSave}>
                     <Text style={styles.buttonText}>{'Guardar'.toUpperCase()}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
-                    <Text style={styles.buttonText}>{'Cancelar'.toUpperCase()}</Text>
                 </TouchableOpacity>
             </ScrollView>
         </View>
