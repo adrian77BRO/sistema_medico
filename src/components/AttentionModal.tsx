@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, Alert, Button, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import Icon2 from 'react-native-vector-icons/AntDesign';
+import { View, Text, Modal, Alert, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 import { Atencion, NuevaAtencion } from '../models/Attention';
@@ -57,8 +59,14 @@ export const AttentionModal: React.FC<AttentionModalProps> = ({ visible, onClose
             </Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="E" color='blue' onPress={() => handleEdit(atencion)} />
-            <Button title="D" color="red" onPress={() => confirmDelete(atencion.id_atencion_medica)} />
+            <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 5, padding: 5 }}
+                onPress={() => handleEdit(atencion)}>
+                <Icon name="edit" size={25} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ backgroundColor: 'red', borderRadius: 5, padding: 5 }}
+                onPress={() => confirmDelete(atencion.id_atencion_medica)}>
+                <Icon2 name="delete" size={25} color="#fff" />
+            </TouchableOpacity>
         </View>
     ]);
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, Alert, Button, TextInput, Pressable, Platform, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import Icon2 from 'react-native-vector-icons/AntDesign';
+import { View, Text, Modal, Alert, TextInput, Pressable, Platform, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -76,8 +78,14 @@ export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose
             <Text>{horario.hora_termino}</Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="E" color='blue' onPress={() => handleEdit(horario)} />
-            <Button title="D" color="red" onPress={() => confirmDelete(horario.id_horario)} />
+            <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 5, padding: 5 }}
+                onPress={() => handleEdit(horario)}>
+                <Icon name="edit" size={25} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ backgroundColor: 'red', borderRadius: 5, padding: 5 }}
+                onPress={() => confirmDelete(horario.id_horario)}>
+                <Icon2 name="delete" size={25} color="#fff" />
+            </TouchableOpacity>
         </View>
     ]);
 

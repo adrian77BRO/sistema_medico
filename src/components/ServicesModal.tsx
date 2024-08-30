@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, Alert, Button, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import Icon2 from 'react-native-vector-icons/AntDesign';
+import { View, Text, Modal, Alert, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 import { Servicio, NuevoServicio } from '../models/Service';
@@ -69,8 +71,14 @@ export const ServicesModal: React.FC<ServiceModalProps> = ({ visible, onClose, d
             </Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="E" color='blue' onPress={() => handleEdit(servicio)} />
-            <Button title="D" color="red" onPress={() => confirmDelete(servicio.id_servicio)} />
+            <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 5, padding: 5 }}
+                onPress={() => handleEdit(servicio)}>
+                <Icon name="edit" size={25} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ backgroundColor: 'red', borderRadius: 5, padding: 5 }}
+                onPress={() => confirmDelete(servicio.id_servicio)}>
+                <Icon2 name="delete" size={25} color="#fff" />
+            </TouchableOpacity>
         </View>
     ]);
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Platform, Alert, FlatList, Button, Pressable, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { View, Text, TextInput, Platform, Alert, FlatList, Pressable, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -115,7 +116,10 @@ export const AppointmentFormScreen: React.FC<AppointmentFormScreenProps> = ({ na
                         renderItem={({ item }) =>
                             <View style={styles.row}>
                                 <Text style={{ marginTop: 10 }}>{item.nombre} {item.apellidos}</Text>
-                                <Button title="S" color="blue" onPress={() => selectPatient(item)} />
+                                <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 5, padding: 5 }}
+                                    onPress={() => selectPatient(item)}>
+                                    <Icon name="check" size={25} color="#fff" />
+                                </TouchableOpacity>
                             </View>
                         }
                         scrollEnabled={false}

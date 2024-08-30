@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, Button, Alert, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Alert, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import Icon2 from 'react-native-vector-icons/AntDesign';
+import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
@@ -105,13 +108,10 @@ export const AppointmentsListScreen: React.FC<AppointmentsListScreenProps> = ({ 
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
 
-    const tableHead = ['Confirmado', 'Paciente', 'Fecha y hora', 'Médico', 'Estatus', 'Acciones'];
-    const columnWidths = [100, 200, 150, 200, 100, 100, 200];
+    const tableHead = ['Paciente', 'Fecha y hora', 'Médico', 'Estatus', 'Acciones'];
+    const columnWidths = [200, 150, 200, 100, 100, 200];
 
     const tableData = citas.map((cita) => [
-        <View style={styles.tableContainer}>
-
-        </View>,
         <View style={styles.tableContainer}>
             <Text>{cita.paciente}</Text>
         </View>,
@@ -128,9 +128,18 @@ export const AppointmentsListScreen: React.FC<AppointmentsListScreenProps> = ({ 
             </Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="E" color='blue' onPress={() => navigation.navigate('EditAppointmentScreen', { cita })} />
-            {cita.estatus == 0 && <Button title="X" color="red" onPress={() => confirmCancel(cita.id_cita)} />}
-            {cita.estatus == 2 && <Button title="D" color="red" onPress={() => confirmDelete(cita.id_cita)} />}
+            <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 5, padding: 5 }}
+                onPress={() => navigation.navigate('EditAppointmentScreen', { cita })}>
+                <Icon name="edit" size={25} color="#fff" />
+            </TouchableOpacity>
+            {cita.estatus == 0 && <TouchableOpacity style={{ backgroundColor: 'red', borderRadius: 5, padding: 5 }}
+                onPress={() => confirmCancel(cita.id_cita)}>
+                <Icon3 name="cancel" size={25} color="#fff" />
+            </TouchableOpacity>}
+            {cita.estatus == 2 && <TouchableOpacity style={{ backgroundColor: 'red', borderRadius: 5, padding: 5 }}
+                onPress={() => confirmDelete(cita.id_cita)}>
+                <Icon2 name="delete" size={25} color="#fff" />
+            </TouchableOpacity>}
         </View>
     ]);
 
@@ -251,7 +260,7 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        height: 50,
+        height: 75,
         borderBottomWidth: 1,
         borderLeftWidth: 1,
         borderColor: '#34dbb8',

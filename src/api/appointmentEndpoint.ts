@@ -64,6 +64,21 @@ export const getAppointmentsByPatient = async (paciente: string) => {
     }
 }
 
+export const getAppointmentsByDate = async (fecha: string) => {
+    try {
+        const token = await getToken();
+        const response = await api.get(`/${url}/fecha/${fecha}`, {
+            headers: {
+                'Authorization': `${token}`,
+            },
+        });
+        return response;
+    } catch (error: any) {
+        console.log(error.response);
+        throw error.response?.data;
+    }
+}
+
 export const getAppointmentsByStatus = async (estatus: number) => {
     try {
         const token = await getToken();

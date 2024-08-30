@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, Button, Alert, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Alert, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import Icon2 from 'react-native-vector-icons/AntDesign';
+import Icon3 from 'react-native-vector-icons/FontAwesome5';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -91,8 +94,10 @@ export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigati
     const tableData = pacientes.map((paciente) => [
         <View style={styles.tableContainer}>
             <Text style={{ padding: 4 }}>{paciente.nombre} {paciente.apellidos}</Text>
-            <Text style={{ backgroundColor: paciente.sexo == 1 ? 'lightblue' : 'pink',
-                color: '#fff', borderRadius: 30, padding: 4 }}>
+            <Text style={{
+                backgroundColor: paciente.sexo == 1 ? 'lightblue' : 'pink',
+                color: '#fff', borderRadius: 30, padding: 4
+            }}>
                 {paciente.sexo == 1 && 'Hombre'}
                 {paciente.sexo == 2 && 'Mujer'}
             </Text>
@@ -117,9 +122,18 @@ export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigati
             <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'red' }}>0</Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <Button title="I" onPress={() => handleViewDetails(paciente)} color='green' />
-            <Button title="E" color='blue' onPress={() => navigation.navigate('EditPatientScreen', { paciente })} />
-            <Button title="D" color="red" onPress={() => confirmDelete(paciente.id_paciente)} />
+            <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 5, padding: 5 }}
+                onPress={() => handleViewDetails(paciente)}>
+                <Icon3 name="user" size={25} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 5, padding: 5 }}
+                onPress={() => navigation.navigate('EditPatientScreen', { paciente })}>
+                <Icon name="edit" size={25} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ backgroundColor: 'red', borderRadius: 5, padding: 5 }}
+                onPress={() => confirmDelete(paciente.id_paciente)}>
+                <Icon2 name="delete" size={25} color="#fff" />
+            </TouchableOpacity>
         </View>
     ]);
 

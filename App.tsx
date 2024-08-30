@@ -2,6 +2,8 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon2 from 'react-native-vector-icons/FontAwesome5';
 
 import { StackParamList } from './src/types';
 import { RootStackParamList } from './src/rootTypes';
@@ -89,18 +91,45 @@ const ConsultsNavigator = () => {
 const MenuNavigator = () => {
   return (
     <Drawer.Navigator initialRouteName="Inicio">
-      <Drawer.Screen name="Inicio" component={HomeScreen} />
-      <Drawer.Screen name="Calendario" component={CalendarScreen} />
-      <Drawer.Screen name="Pacientes">
+      <Drawer.Screen name="Inicio" component={HomeScreen}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Icon name="home" color={color} size={size} />
+          ),
+        }} />
+      <Drawer.Screen name="Calendario" component={CalendarScreen}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Icon name="calendar" color={color} size={size} />
+          ),
+        }} />
+      <Drawer.Screen name="Pacientes" options={{
+        drawerIcon: ({ color, size }) => (
+          <Icon2 name="users" color={color} size={size} />
+        ),
+      }}>
         {() => <PatientsNavigator />}
       </Drawer.Screen>
-      <Drawer.Screen name="Citas">
+      <Drawer.Screen name="Citas" options={{
+        drawerIcon: ({ color, size }) => (
+          <Icon name="calendar-check-o" color={color} size={size} />
+        ),
+      }}>
         {() => <AppointmentsNavigator />}
       </Drawer.Screen>
-      <Drawer.Screen name="Consultas médicas">
+      <Drawer.Screen name="Consultas médicas" options={{
+        drawerIcon: ({ color, size }) => (
+          <Icon2 name="notes-medical" color={color} size={size} />
+        ),
+      }}>
         {() => <ConsultsNavigator />}
       </Drawer.Screen>
-      <Drawer.Screen name="Mi perfil" component={ProfileScreen} />
+      <Drawer.Screen name="Mi perfil" component={ProfileScreen}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Icon2 name="user-alt" color={color} size={size} />
+          ),
+        }} />
     </Drawer.Navigator>
   );
 };
