@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, Alert } from 'react-native';
+import { View, TextInput, Image, TouchableOpacity, StyleSheet, Text, Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
@@ -37,6 +37,13 @@ export const LoginScreen: React.FC = () => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.imageContainer}>
+                <Image
+                    source={require('../../assets/salud_confiable.png')}
+                    style={styles.image}
+                />
+            </View>
+            <Text style={styles.text}>Iniciar sesión</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Nombre de usuario"
@@ -45,12 +52,14 @@ export const LoginScreen: React.FC = () => {
             />
             <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="Contraseña"
                 value={pass}
                 onChangeText={setPass}
                 secureTextEntry
             />
-            <Button title="Login" onPress={() => handleLogin(usuario, pass)} />
+            <TouchableOpacity style={styles.button} onPress={() => handleLogin(usuario, pass)}>
+                <Text style={styles.buttonText}>{'Iniciar sesión'.toUpperCase()}</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -62,15 +71,41 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     input: {
-        height: 40,
-        borderColor: '#ccc',
+        borderColor: '#34dbb8',
         borderWidth: 1,
-        marginBottom: 12,
-        paddingHorizontal: 8,
+        borderRadius: 5,
+        marginVertical: 10,
+        padding: 10,
     },
-    link: {
-        marginTop: 16,
-        color: 'blue',
+    text: {
+        fontSize: 20,
         textAlign: 'center',
+        marginBottom: 15
+    },
+    button: {
+        backgroundColor: '#3498db',
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 15,
+    },
+    imageContainer: {
+        padding: 20
+    },
+    image: {
+        width: 275,
+        height: 100,
+        marginBottom: 10,
     },
 });

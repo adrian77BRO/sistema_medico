@@ -8,6 +8,8 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { Paciente } from '../models/Patient';
 import { PatientDetailsModal } from '../components/PatientDetails';
+import { Historial } from '../models/History';
+import { getHistoryById } from '../api/historyEndpoint';
 import {
     deletePatient,
     getAllPatients,
@@ -20,6 +22,7 @@ type PatientsListScreenProps = NativeStackScreenProps<RootStackParamList, 'Patie
 export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigation }) => {
     const [pacientes, setPacientes] = useState<Paciente[]>([]);
     const [nombre, setNombre] = useState('');
+    const [historial, setHistorial] = useState<Historial | null>(null);
     const [modalDetails, setModalDetails] = useState(false);
     const [selectedPatient, setSelectedPatient] = useState<Paciente | null>(null);
 
@@ -36,6 +39,11 @@ export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigati
     const getPatients = async () => {
         const response = await getAllPatients();
         setPacientes(response.data.pacientes);
+    };
+
+    const getHistory = async (id: number) => {
+        const response = await getHistoryById(id);
+        setHistorial(response.data.historial);
     };
 
     const confirmDelete = (id: number) => {
@@ -65,6 +73,7 @@ export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigati
 
     const handleViewDetails = (paciente: Paciente) => {
         setSelectedPatient(paciente);
+        getHistory(paciente.id_paciente);
         setModalDetails(true);
     };
 
@@ -159,6 +168,7 @@ export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigati
                                         visible={modalDetails}
                                         onClose={() => setModalDetails(false)}
                                         paciente={selectedPatient}
+                                        historial={historial}
                                     />
                                 )}
                             </>

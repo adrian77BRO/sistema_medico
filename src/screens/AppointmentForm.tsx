@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { View, Text, TextInput, Platform, Alert, FlatList, Pressable, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+    View, Text, TextInput, Platform, Alert, FlatList,
+    Pressable, ScrollView, TouchableOpacity, StyleSheet
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -10,6 +13,8 @@ import { NuevaCita } from '../models/Appointment';
 import { Paciente } from '../models/Patient';
 import { createAppointment } from '../api/appointmentEndpoint';
 import { getPatientsByName } from '../api/patientEndpoint';
+import { Historial } from '../models/History';
+import { getHistoryById } from '../api/historyEndpoint';
 
 type AppointmentFormScreenProps = NativeStackScreenProps<RootStackParamList, 'AppointmentFormScreen'>;
 
@@ -18,6 +23,7 @@ export const AppointmentFormScreen: React.FC<AppointmentFormScreenProps> = ({ na
     const [hora, setHora] = useState('');
     const [paciente, setPaciente] = useState('');
     const [observaciones, setObservaciones] = useState('');
+    const [historial, setHistorial] = useState<Historial | null>(null);
 
     const [date, setDate] = useState(new Date());
     const [time, setTime] = useState(new Date());
@@ -96,9 +102,15 @@ export const AppointmentFormScreen: React.FC<AppointmentFormScreenProps> = ({ na
         }
     };
 
+    const getHistory = async (id: number) => {
+        const response = await getHistoryById(id);
+        setHistorial(response.data.historial);
+    };
+
     const selectPatient = (paciente: Paciente) => {
         setSelectedPatient(paciente);
         setSelectedIdPat(paciente.id_paciente);
+        getHistory(paciente.id_paciente);
         setPacientes([]);
         setPaciente(paciente.nombre + ' ' + paciente.apellidos);
     };
@@ -164,6 +176,7 @@ export const AppointmentFormScreen: React.FC<AppointmentFormScreenProps> = ({ na
                     visible={modalDetails}
                     onClose={() => setModalDetails(false)}
                     paciente={selectedPatient}
+                    historial={historial}
                 />
             )}
         </View>

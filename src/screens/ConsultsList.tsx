@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, ScrollView, Pressable, Platform, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+    View, Text, TextInput, ScrollView, Linking,
+    Pressable, Platform, TouchableOpacity, StyleSheet
+} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { encode as base64_encode } from 'base-64';
 
 import { Consulta } from '../models/Consult';
 import {
@@ -91,6 +95,11 @@ export const ConsultsListScreen: React.FC<ConsultsListScreenProps> = () => {
         setFecha('');
     };
 
+    const handlePress = (id: number) => {
+        let encoded = base64_encode(id.toString());
+        Linking.openURL(`https://saludconfiable.com.mx/admin/imprimir/print.php?id=${encoded}`);
+    };
+
     const formatDateISO = (dateISO: string) => {
         const date = new Date(dateISO);
         const year = date.getUTCFullYear();
@@ -102,7 +111,7 @@ export const ConsultsListScreen: React.FC<ConsultsListScreenProps> = () => {
     }
 
     const tableHead = ['Paciente', 'Médico', 'Info. pagos', 'Diagnóstico', 'Nota médica', 'Acciones'];
-    const columnWidths = [200, 200, 200, 150, 150, 75];
+    const columnWidths = [200, 200, 200, 150, 150, 100];
 
     const tableData = consultas.map((consulta) => [
         <View style={styles.tableContainer}>
@@ -123,7 +132,8 @@ export const ConsultsListScreen: React.FC<ConsultsListScreenProps> = () => {
             <Text>{consulta.padecimientos}</Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 5, padding: 5 }}>
+            <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 5, padding: 5 }}
+                onPress={() => handlePress(consulta.id_consulta)}>
                 <Icon name="printer" size={25} color="#fff" />
             </TouchableOpacity>
         </View>

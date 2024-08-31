@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Icon from 'react-native-vector-icons/Feather';
 import Icon2 from 'react-native-vector-icons/AntDesign';
-import { View, Text, Modal, Alert, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+    View, Text, Modal, Alert, TextInput,
+    ScrollView, TouchableOpacity, StyleSheet
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 import { Atencion, NuevaAtencion } from '../models/Attention';
