@@ -1,100 +1,94 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, Alert, TextInput, ScrollView, Platform, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
-import Icon2 from 'react-native-vector-icons/AntDesign';
-import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { View, Text, TextInput, ScrollView, Pressable, Platform, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/AntDesign';
 import { useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Cita } from '../models/Appointment';
+import { Consulta } from '../models/Consult';
 import {
-    deleteAppointment,
-    cancelAppointment,
-    getAllAppointments,
-    getAppointmentsByStatus,
-    getAppointmentsByPatient,
-} from '../api/appointmentEndpoint';
+    getAllConsults,
+    getConsultsByPatient,
+    getConsultsByDate,
+    getConsultsByStatus
+} from '../api/consultEndpoint';
 import { RootStackParamList } from '../rootTypes';
 
-type AppointmentsListScreenProps = NativeStackScreenProps<RootStackParamList, 'AppointmentsListScreen'>;
+type ConsultsListScreenProps = NativeStackScreenProps<RootStackParamList, 'ConsultsListScreen'>;
 
-export const AppointmentsListScreen: React.FC<AppointmentsListScreenProps> = ({ navigation }) => {
-    const [citas, setCitas] = useState<Cita[]>([]);
+export const ConsultsListScreen: React.FC<ConsultsListScreenProps> = () => {
+    const [consultas, setConsultas] = useState<Consulta[]>([]);
     const [paciente, setPaciente] = useState('');
+    const [fecha, setFecha] = useState('');
     const [estatus, setEstatus] = useState(0);
 
+    const [date, setDate] = useState(new Date());
+    const [showDate, setShowDate] = useState(false);
+
     useEffect(() => {
-        getAppointments();
+        getConsults();
     }, []);
 
     useFocusEffect(
         useCallback(() => {
-            getAppointments();
+            getConsults();
         }, [])
     );
 
-    const getAppointments = async () => {
-        const response = await getAllAppointments();
-        setCitas(response.data.citas);
+    const formatDate = (date: Date) => {
+        const year = date.getUTCFullYear();
+        const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+        const day = date.getUTCDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    const onChangeDate = async (event: any, selectedDate: Date | undefined) => {
+        const currentDate = selectedDate || date;
+        setShowDate(Platform.OS === 'ios');
+        setDate(currentDate);
+        setFecha(formatDate(currentDate));
+        if (fecha) {
+            const response = await getConsultsByDate(formatDate(currentDate));
+            setConsultas(response.data.consultas);
+        } else {
+            getConsults();
+        }
+        setEstatus(1);
+        setPaciente('');
     };
 
-    const confirmDelete = (id: number) => {
-        Alert.alert(
-            'Eliminar registro',
-            '¿Está seguro de querer eliminar este registro?',
-            [
-                { text: 'Cancelar', style: 'cancel', },
-                { text: 'Eliminar', style: 'destructive', onPress: () => handleDelete(id) }
-            ],
-            { cancelable: true }
-        );
+    const showDatepicker = () => {
+        setShowDate(true);
     };
 
-    const handleCancel = async (id: number) => {
-        const response = await cancelAppointment(id);
-        Alert.alert(response.data.message, 'Cita cancelada');
-        getAppointments();
-    };
-
-    const confirmCancel = (id: number) => {
-        Alert.alert(
-            'Cancelar cita',
-            '¿Está seguro de querer cancelar esta cita?',
-            [
-                { text: 'No', style: 'cancel', },
-                { text: 'Sí', style: 'destructive', onPress: () => handleCancel(id) }
-            ],
-            { cancelable: true }
-        );
-    };
-
-    const handleDelete = async (id: number) => {
-        const response = await deleteAppointment(id);
-        Alert.alert(response.data.message, 'Registro eliminado');
-        getAppointments();
+    const getConsults = async () => {
+        const response = await getAllConsults();
+        setConsultas(response.data.consultas);
     };
 
     const handleSearch = async (nombre: string) => {
         setPaciente(nombre);
         if (nombre) {
-            const response = await getAppointmentsByPatient(nombre);
-            setCitas(response.data.citas);
+            const response = await getConsultsByPatient(nombre);
+            setConsultas(response.data.consultas);
         } else {
-            getAppointments();
+            getConsults();
         }
         setEstatus(1);
+        setFecha('');
     };
 
     const handleStatus = async (estatus: number) => {
         setEstatus(estatus);
-        if (estatus == 1) {
-            getAppointments();
+        if (estatus == 2) {
+            getConsults();
         } else {
-            const response = await getAppointmentsByStatus(estatus);
-            setCitas(response.data.citas);
+            const response = await getConsultsByStatus(estatus);
+            setConsultas(response.data.consultas);
         }
         setPaciente('');
+        setFecha('');
     };
 
     const formatDateISO = (dateISO: string) => {
@@ -107,60 +101,61 @@ export const AppointmentsListScreen: React.FC<AppointmentsListScreenProps> = ({ 
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
 
-    const tableHead = ['Paciente', 'Fecha y hora', 'Médico', 'Estatus', 'Acciones'];
-    const columnWidths = [200, 150, 200, 100, 100, 200];
+    const tableHead = ['Paciente', 'Médico', 'Info. pagos', 'Diagnóstico', 'Nota médica', 'Acciones'];
+    const columnWidths = [200, 200, 200, 150, 150, 75];
 
-    const tableData = citas.map((cita) => [
+    const tableData = consultas.map((consulta) => [
         <View style={styles.tableContainer}>
-            <Text>{cita.paciente}</Text>
+            <Text>{consulta.paciente}</Text>
+            <Text>{formatDateISO(consulta.fecha_consulta)}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text>{formatDateISO(cita.fecha)}</Text>
+            <Text>{consulta.medico}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text>{cita.medico}</Text>
+            <Text>Monto total: {consulta.costo}</Text>
+            <Text>Monto pagado: {consulta.monto_pagado}</Text>
         </View>,
         <View style={styles.tableContainer}>
-            <Text style={{ color: cita.estatus == 0 ? 'orange' : 'red' }}>
-                {cita.estatus == 0 && 'Por atender'}
-                {cita.estatus == 2 && 'Cancelado'}
-            </Text>
+            <Text>{consulta.diagnostico}</Text>
+        </View>,
+        <View style={styles.tableContainer}>
+            <Text>{consulta.padecimientos}</Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
-            <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 5, padding: 5 }}
-                onPress={() => navigation.navigate('EditAppointmentScreen', { cita })}>
-                <Icon name="edit" size={25} color="#fff" />
+            <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 5, padding: 5 }}>
+                <Icon name="printer" size={25} color="#fff" />
             </TouchableOpacity>
-            {cita.estatus == 0 && <TouchableOpacity style={{ backgroundColor: 'red', borderRadius: 5, padding: 5 }}
-                onPress={() => confirmCancel(cita.id_cita)}>
-                <Icon3 name="cancel" size={25} color="#fff" />
-            </TouchableOpacity>}
-            {cita.estatus == 2 && <TouchableOpacity style={{ backgroundColor: 'red', borderRadius: 5, padding: 5 }}
-                onPress={() => confirmDelete(cita.id_cita)}>
-                <Icon2 name="delete" size={25} color="#fff" />
-            </TouchableOpacity>}
         </View>
     ]);
 
     return (
         <ScrollView>
             <View style={styles.container}>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AppointmentFormScreen')} >
-                    <Text style={styles.buttonText}>{'Nueva cita'.toUpperCase()}</Text>
-                </TouchableOpacity>
                 <View style={styles.inputRow}>
                     <TextInput style={styles.input} placeholder="Buscar por nombre" value={paciente} onChangeText={handleSearch} />
                     <View style={styles.pickerContainer}>
                         <Picker selectedValue={estatus} style={styles.picker} onValueChange={handleStatus}>
-                            <Picker.Item label="Por atender" value={0} />
-                            <Picker.Item label="Todos" value={1} />
-                            <Picker.Item label="Cancelado" value={2} />
+                            <Picker.Item label="Todos" value={2} />
+                            <Picker.Item label="Por pagar" value={0} />
+                            <Picker.Item label="Pagado" value={1} />
                         </Picker>
                     </View>
                 </View>
+                <Pressable onPress={showDatepicker}>
+                    <TextInput style={styles.input} value={fecha ? date.toLocaleDateString('es-MX') : 'Buscar por consulta'} editable={false} />
+                    {showDate && (
+                        <DateTimePicker
+                            value={date || new Date()}
+                            mode="date"
+                            display="spinner"
+                            onChange={onChangeDate}
+                        />
+                    )}
+                </Pressable>
                 <ScrollView horizontal style={{ marginTop: 20 }}>
                     <View>
-                        {citas.length > 0 ? (
+                        {consultas.length > 0 ? (
                             <>
                                 <View style={[styles.row, styles.headerRow]}>
                                     {tableHead.map((header, index) => (

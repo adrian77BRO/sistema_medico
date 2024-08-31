@@ -71,9 +71,13 @@ export const AttentionModal: React.FC<AttentionModalProps> = ({ visible, onClose
     ]);
 
     const handleSave = async () => {
+        if (!nombre || (estatus != 0 && estatus != 1)) {
+            Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+            return;
+        }
         const nuevaAtencion: NuevaAtencion = {
             nombre, descripcion, sintomas,
-            causas, estatus
+            causas, estatus: Number(estatus)
         };
         const response = await createAttention(nuevaAtencion);
         Alert.alert(response.data.message, 'Nuevo registro');

@@ -7,6 +7,7 @@ import Icon2 from 'react-native-vector-icons/FontAwesome5';
 
 import { StackParamList } from './src/types';
 import { RootStackParamList } from './src/rootTypes';
+import CustomDrawerContent from './src/InfoSidebar';
 
 import { HomeScreen } from './src/screens/Home';
 import { ProfileScreen } from './src/screens/Profile';
@@ -20,8 +21,7 @@ import { AppointmentsListScreen } from './src/screens/AppointmentsList';
 import { AppointmentFormScreen } from './src/screens/AppointmentForm';
 import { EditAppointmentScreen } from './src/screens/EditAppointment';
 
-import { ConsultsScreen } from './src/screens/Consults';
-import { ConsultFormScreen } from './src/screens/ConsultForm';
+import { ConsultsListScreen } from './src/screens/ConsultsList';
 import { LoginScreen } from './src/screens/Login';
 
 const Drawer = createDrawerNavigator<StackParamList>();
@@ -75,14 +75,73 @@ const ConsultsNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="ConsultsScreen"
-        component={ConsultsScreen}
+        name="ConsultsListScreen"
+        component={ConsultsListScreen}
         options={{ title: 'Listado de consultas' }}
       />
+    </Stack.Navigator>
+  );
+};
+
+const CalendarNavigator = () => {
+  return (
+    <Stack.Navigator>
       <Stack.Screen
-        name="ConsultFormScreen"
-        component={ConsultFormScreen}
-        options={{ title: 'Registrar consulta' }}
+        name="CalendarScreen"
+        component={CalendarScreen}
+        options={{ title: 'Calendario de citas' }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const HomeNavigator = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="HomeScreen"
+        component={HomeScreen}
+        options={{ title: 'Inicio', headerShown: false }}
+      />
+      <Stack.Screen
+        name="CalendarScreen"
+        component={CalendarScreen}
+        options={{ title: 'Calendario de citas' }}
+      />
+      <Stack.Screen
+        name="PatientsListScreen"
+        component={PatientsListScreen}
+        options={{ title: 'Listado de pacientes' }}
+      />
+      <Stack.Screen
+        name="PatientFormScreen"
+        component={PatientFormScreen}
+        options={{ title: 'Registrar paciente' }}
+      />
+      <Stack.Screen
+        name="EditPatientScreen"
+        component={EditPatientScreen}
+        options={{ title: 'Editar paciente' }}
+      />
+      <Stack.Screen
+        name="AppointmentsListScreen"
+        component={AppointmentsListScreen}
+        options={{ title: 'Listado de citas' }}
+      />
+      <Stack.Screen
+        name="AppointmentFormScreen"
+        component={AppointmentFormScreen}
+        options={{ title: 'Registrar cita' }}
+      />
+      <Stack.Screen
+        name="EditAppointmentScreen"
+        component={EditAppointmentScreen}
+        options={{ title: 'Editar cita' }}
+      />
+      <Stack.Screen
+        name="ConsultsListScreen"
+        component={ConsultsListScreen}
+        options={{ title: 'Listado de consultas' }}
       />
     </Stack.Navigator>
   );
@@ -90,19 +149,23 @@ const ConsultsNavigator = () => {
 
 const MenuNavigator = () => {
   return (
-    <Drawer.Navigator initialRouteName="Inicio">
-      <Drawer.Screen name="Inicio" component={HomeScreen}
-        options={{
-          drawerIcon: ({ color, size }) => (
-            <Icon name="home" color={color} size={size} />
-          ),
-        }} />
-      <Drawer.Screen name="Calendario" component={CalendarScreen}
+    <Drawer.Navigator initialRouteName="Inicio"
+      drawerContent={(props) => <CustomDrawerContent {...props} />}>
+      <Drawer.Screen name="Inicio" options={{
+        drawerIcon: ({ color, size }) => (
+          <Icon name="home" color={color} size={size} />
+        ),
+      }}>
+        {() => <HomeNavigator />}
+      </Drawer.Screen>
+      <Drawer.Screen name="Calendario"
         options={{
           drawerIcon: ({ color, size }) => (
             <Icon name="calendar" color={color} size={size} />
           ),
-        }} />
+        }}>
+        {() => <CalendarNavigator />}
+      </Drawer.Screen>
       <Drawer.Screen name="Pacientes" options={{
         drawerIcon: ({ color, size }) => (
           <Icon2 name="users" color={color} size={size} />

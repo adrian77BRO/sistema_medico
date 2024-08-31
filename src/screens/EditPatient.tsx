@@ -33,6 +33,10 @@ export const EditPatientScreen: React.FC<EditPatientScreenProps> = ({ route, nav
     const [fecha_nacimiento, setFecha_nacimiento] = useState(formatEditDate(paciente.fecha_nacimiento));
 
     const handleSave = async () => {
+        if (!nombre || !apellidos || !sexo || !fecha_nacimiento) {
+            Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+            return;
+        }
         const editarPaciente: NuevoPaciente = {
             nombre, apellidos, correo, telefono,
             direccion, familiar_responsable,

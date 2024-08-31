@@ -1,12 +1,13 @@
 import { api } from "./endpoint";
 import { getToken } from "../storage/token";
+import { NuevoPerfil } from "../models/User";
 
 const url = 'usuarios';
 
-export const loginUser = async (correo: string, pass: string) => {
+export const loginUser = async (usuario: string, pass: string) => {
     try {
         const response = await api.post(`/${url}/login`, {
-            correo,
+            usuario,
             pass
         });
         return response;
@@ -30,20 +31,7 @@ export const getProfile = async () => {
     }
 }
 
-export const updateProfile = async (profile: {
-    id_municipio: number;
-    correo: string;
-    telefono: string;
-    telefono_urgencias: string;
-    direccion: string;
-    whatsapp: string;
-    facebook: string;
-    twitter: string;
-    instagram: string;
-    web: string;
-    sobre_mi: string;
-    experiencia: string;
-}) => {
+export const updateProfile = async (profile: NuevoPerfil) => {
     try {
         const token = await getToken();
         const response = await api.put(`/${url}/perfil`, profile, {

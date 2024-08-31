@@ -1,20 +1,16 @@
-export type Consult = {
-    id: string;
-    patient: string;
-    doctor: string;
-    suffering: string;
-    diagnosis: string;
-    weight: string;
-    height: string;
-    temperature: string;
-    pressure: string;
-    mass: string;
-    saturation: string;
-    dateAppoint: string;
-    dateConsult: string;
-    cost: string;
-    amount: string;
-    observations: string;
-    statusPaid: string;
-    statusConsult: string;
+export type Consulta = {
+    id_consulta: number;
+    paciente: string;
+    fecha_consulta: string;
+    medico: string;
+    padecimientos: string;
+    diagnostico: string;
+    peso: string;
+    estatura: string;
+    temperatura: string;
+    presion: string;
+    masa_corporal: string;
+    saturacion: string;
+    costo: number;
+    monto_pagado: number;
 };

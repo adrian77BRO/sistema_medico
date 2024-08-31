@@ -72,6 +72,10 @@ export const EditAppointmentScreen: React.FC<EditAppointmentScreenProps> = ({ ro
     };
 
     const handleSave = async () => {
+        if (!fecha || !hora) {
+            Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+            return;
+        }
         const editarCita: EditarCita = {
             fecha: fecha + ' ' + hora,
             observaciones

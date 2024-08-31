@@ -118,6 +118,10 @@ export const SchedulesModal: React.FC<SchedulesModalProps> = ({ visible, onClose
     };
 
     const handleSave = async () => {
+        if (!dia || !hora_inicio || !hora_termino) {
+            Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+            return;
+        }
         const nuevoHorario: NuevoHorario = {
             dia: Number(dia), hora_inicio, hora_termino
         };

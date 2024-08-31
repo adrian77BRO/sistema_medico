@@ -68,6 +68,10 @@ export const AppointmentFormScreen: React.FC<AppointmentFormScreenProps> = ({ na
     };
 
     const handleSave = async () => {
+        if (!fecha || !hora || !selectedPatient) {
+            Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+            return;
+        }
         const nuevaCita: NuevaCita = {
             id_paciente: selectedIdPat,
             fecha: fecha + ' ' + hora,

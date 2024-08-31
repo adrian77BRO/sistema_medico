@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Calendar, DateData } from 'react-native-calendars';
 import { format } from 'date-fns';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { Cita } from '../models/Appointment';
 import { getAppointmentsByDate } from '../api/appointmentEndpoint';
+import { RootStackParamList } from '../rootTypes';
 
-export const CalendarScreen: React.FC = () => {
+type CalendarScreenProps = NativeStackScreenProps<RootStackParamList, 'CalendarScreen'>;
+
+export const CalendarScreen: React.FC<CalendarScreenProps> = () => {
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [currentDate, setCurrentDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
     const [calendarKey, setCalendarKey] = useState<number>(0);

@@ -19,9 +19,13 @@ export const EditAttentionModal: React.FC<EditAttentionProps> = ({ atencion, onC
     const [estatus, setEstatus] = useState(atencion.estatus);
 
     const handleSave = async () => {
+        if (!nombre || (estatus != 0 && estatus != 1)) {
+            Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+            return;
+        }
         const atencionEditar: NuevaAtencion = {
             nombre, descripcion, sintomas,
-            causas, estatus
+            causas, estatus: Number(estatus)
         };
         const response = await updateAttention(atencion.id_atencion_medica, atencionEditar);
         Alert.alert(response.data.message, 'Registro guardado');

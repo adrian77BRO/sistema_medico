@@ -61,6 +61,10 @@ export const EditScheduleModal: React.FC<EditScheduleProps> = ({ horario, onClos
     };
 
     const handleSave = async () => {
+        if (!dia || !hora_inicio || !hora_termino) {
+            Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+            return;
+        }
         const horarioEditar: NuevoHorario = {
             dia: Number(dia), hora_inicio, hora_termino
         };

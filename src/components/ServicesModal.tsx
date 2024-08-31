@@ -83,9 +83,15 @@ export const ServicesModal: React.FC<ServiceModalProps> = ({ visible, onClose, d
     ]);
 
     const handleSave = async () => {
+        if (!nombre || !orden || (estatus != 0 && estatus != 1) || (estatus_web != 0 && estatus_web != 1)
+            || (estatus_sistema != 0 && estatus_sistema != 1) || !costo) {
+            Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+            return;
+        }
         const nuevoServicio: NuevoServicio = {
-            nombre, descripcion, orden: Number(orden), estatus,
-            estatus_web, estatus_sistema, costo: Number(costo)
+            nombre, descripcion, orden: Number(orden),
+            estatus: Number(estatus), estatus_web: Number(estatus_web),
+            estatus_sistema: Number(estatus_sistema), costo: Number(costo)
         };
         const response = await createService(nuevoServicio);
         Alert.alert(response.data.message, 'Nuevo registro');
@@ -97,6 +103,7 @@ export const ServicesModal: React.FC<ServiceModalProps> = ({ visible, onClose, d
         setEstatus(0);
         setEstatus_web(0);
         setEstatus_sistema(0);
+        setCosto('');
     };
 
     const handleEdit = (servicio: Servicio) => {
@@ -146,7 +153,7 @@ export const ServicesModal: React.FC<ServiceModalProps> = ({ visible, onClose, d
                     <View style={styles.row}>
                         <View style={styles.pickerContainer}>
                             <Picker style={styles.picker} selectedValue={estatus} onValueChange={setEstatus}>
-                                <Picker.Item label="Activo" value="" />
+                                <Picker.Item label="Estatus" value="" />
                                 <Picker.Item label="Sí" value={1} />
                                 <Picker.Item label="No" value={0} />
                             </Picker>
@@ -157,14 +164,14 @@ export const ServicesModal: React.FC<ServiceModalProps> = ({ visible, onClose, d
                     <View style={styles.row}>
                         <View style={styles.pickerContainer}>
                             <Picker style={styles.picker} selectedValue={estatus_web} onValueChange={setEstatus_web}>
-                                <Picker.Item label="Activo" value="" />
+                                <Picker.Item label="Estatus web" value="" />
                                 <Picker.Item label="Sí" value={1} />
                                 <Picker.Item label="No" value={0} />
                             </Picker>
                         </View>
                         <View style={styles.pickerContainer}>
                             <Picker style={styles.picker} selectedValue={estatus_sistema} onValueChange={setEstatus_sistema}>
-                                <Picker.Item label="Activo" value="" />
+                                <Picker.Item label="Estatus sistema" value="" />
                                 <Picker.Item label="Sí" value={1} />
                                 <Picker.Item label="No" value={0} />
                             </Picker>

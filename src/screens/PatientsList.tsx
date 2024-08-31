@@ -88,8 +88,8 @@ export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigati
         return `${year}-${month}-${day}`;
     }
 
-    const tableHead = ['Nombre', 'Información', 'Info. pagos', 'Por atender', 'Atendidos', 'Cancelados', 'Acciones'];
-    const columnWidths = [200, 200, 200, 100, 100, 100, 150];
+    const tableHead = ['Nombre', 'Información', 'Acciones'];
+    const columnWidths = [200, 200, 150];
 
     const tableData = pacientes.map((paciente) => [
         <View style={styles.tableContainer}>
@@ -106,20 +106,6 @@ export const PatientsListScreen: React.FC<PatientsListScreenProps> = ({ navigati
             <Text>Email: {paciente.correo}</Text>
             <Text>Tel: {paciente.telefono}</Text>
             <Text>Nacimiento: {formatDateISO(paciente.fecha_nacimiento)}</Text>
-        </View>,
-        <View style={styles.tableContainer}>
-            <Text>Monto total: $0</Text>
-            <Text>Monto pagado: $0</Text>
-            <Text>Monto restante: $0</Text>
-        </View>,
-        <View style={styles.tableContainer}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'orange' }}>0</Text>
-        </View>,
-        <View style={styles.tableContainer}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'green' }}>0</Text>
-        </View>,
-        <View style={styles.tableContainer}>
-            <Text style={{ alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'red' }}>0</Text>
         </View>,
         <View style={[styles.tableContainer, styles.actionButtons]}>
             <TouchableOpacity style={{ backgroundColor: 'green', borderRadius: 5, padding: 5 }}

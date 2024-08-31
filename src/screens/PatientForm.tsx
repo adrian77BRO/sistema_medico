@@ -24,6 +24,10 @@ export const PatientFormScreen: React.FC<PatientFormScreenProps> = ({ navigation
     const [show, setShow] = useState(false);
 
     const handleSave = async () => {
+        if (!nombre || !apellidos || !sexo || !fecha_nacimiento) {
+            Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+            return;
+        }
         const nuevoPaciente: NuevoPaciente = {
             nombre, apellidos, correo, telefono,
             direccion, familiar_responsable,
@@ -55,7 +59,6 @@ export const PatientFormScreen: React.FC<PatientFormScreenProps> = ({ navigation
         const year = date.getUTCFullYear();
         const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
         const day = date.getUTCDate().toString().padStart(2, '0');
-
         return `${year}-${month}-${day}`;
     }
 

@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Alert, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Picker } from '@react-native-picker/picker';
 
 import { StackParamList } from '../types';
+import { NuevoPerfil } from '../models/User';
 import { getProfile, updateProfile } from '../api/userEndpoint';
-import { Estado } from '../models/State';
-import { Municipio } from '../models/Town';
-import { getAllStates, getTownsByState } from '../api/locationEndpoint';
 import { AttentionModal } from '../components/AttentionModal';
 import { ServicesModal } from '../components/ServicesModal';
 import { SchedulesModal } from '../components/SchedulesModal';
@@ -39,34 +36,21 @@ export const ProfileScreen: React.FC<ConsultFormScreenProps> = () => {
     const [password, setPassword] = useState('');
     const [repeatedPassword, setRepeatedPassword] = useState('');
 
-    const [estados, setEstados] = useState<Estado[]>([]);
-    const [municipios, setMunicipios] = useState<Municipio[]>([]);
-
     const [modalAttention, setModalAttention] = useState(false);
     const [modalServices, setModalServices] = useState(false);
     const [modalSchedules, setModalSchedules] = useState(false);
 
     useEffect(() => {
-        getStates();
         getProfileUser();
     }, []);
-
-    const getStates = async () => {
-        const response = await getAllStates();
-        setEstados(response.data.estados);
-    };
-
-    const getTowns = async (input: string) => {
-        const response = await getTownsByState(parseInt(input));
-        setMunicipios(response.data.municipios);
-        setEstado(input);
-    };
 
     const getProfileUser = async () => {
         const response = await getProfile();
         const perfil = response.data.perfil;
         setNombre(perfil.nombre);
         setApellidos(perfil.apellidos);
+        setEstado(perfil.estado);
+        setMunicipio(perfil.municipio);
         setCorreo(perfil.correo);
         setTelefono(perfil.telefono);
         setCedula(perfil.cedula);
@@ -122,8 +106,8 @@ export const ProfileScreen: React.FC<ConsultFormScreenProps> = () => {
 
     const handleSave = async () => {
         try {
-            const profileData = {
-                id_municipio: Number(municipio), correo, telefono, telefono_urgencias, direccion, whatsapp,
+            const profileData: NuevoPerfil = {
+                correo, telefono, telefono_urgencias, direccion, whatsapp,
                 facebook, twitter, instagram, web, sobre_mi, experiencia
             };
             const response = await updateProfile(profileData);
@@ -147,23 +131,8 @@ export const ProfileScreen: React.FC<ConsultFormScreenProps> = () => {
                         value={telefono} onChangeText={handlePhoneNumberChange} />
                 </View>
                 <View style={styles.row}>
-                    <View style={styles.pickerContainer}>
-                        <Picker style={styles.picker} selectedValue={estado} onValueChange={getTowns}>
-                            {estados.map((estado, index) => (
-                                <Picker.Item key={index} label={estado.nombre} value={estado.id_estado} />
-                            ))}
-                        </Picker>
-                    </View>
-                    <View style={styles.pickerContainer}>
-                        <Picker style={styles.picker} selectedValue={municipio} onValueChange={setMunicipio}>
-                            <Picker.Item label="Municipio" value="" />
-                            {municipios.length > 0 && (
-                                municipios.map((municipio, index) => (
-                                    <Picker.Item key={index} label={municipio.nombre} value={municipio.id_municipio} />
-                                ))
-                            )}
-                        </Picker>
-                    </View>
+                    <TextInput style={styles.input} placeholder="Estado" value={estado} editable={false} />
+                    <TextInput style={styles.input} placeholder="Municipio" value={municipio} editable={false} />
                 </View>
 
                 <Text style={styles.title}>Datos del médico</Text>
@@ -222,17 +191,17 @@ export const ProfileScreen: React.FC<ConsultFormScreenProps> = () => {
             <AttentionModal
                 visible={modalAttention}
                 onClose={() => setModalAttention(false)}
-                doctor = {nombre + ' ' + apellidos}
+                doctor={nombre + ' ' + apellidos}
             />
             <ServicesModal
                 visible={modalServices}
                 onClose={() => setModalServices(false)}
-                doctor = {nombre + ' ' + apellidos}
+                doctor={nombre + ' ' + apellidos}
             />
             <SchedulesModal
                 visible={modalSchedules}
                 onClose={() => setModalSchedules(false)}
-                doctor = {nombre + ' ' + apellidos}
+                doctor={nombre + ' ' + apellidos}
             />
         </View>
     );

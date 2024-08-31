@@ -14,13 +14,17 @@ type LoginScreenNavigationProp = NativeStackNavigationProp<
 >;
 
 export const LoginScreen: React.FC = () => {
-    const [correo, setCorreo] = useState('');
+    const [usuario, setUsuario] = useState('');
     const [pass, setPass] = useState('');
     const navigation = useNavigation<LoginScreenNavigationProp>();
 
-    const handleLogin = async (correo: string, pass: string) => {
+    const handleLogin = async (usuario: string, pass: string) => {
         try {
-            const response = await loginUser(correo, pass);
+            if (!usuario) {
+                Alert.alert('Llenar todos los campos', 'Todos los campos son requeridos');
+                return;
+            }
+            const response = await loginUser(usuario, pass);
             Alert.alert(response.data.message, 'Usuario autenticado correctamente');
             await setToken(response.data.token);
             await setIdUser(response.data.usuario.id_usuario);
@@ -35,11 +39,9 @@ export const LoginScreen: React.FC = () => {
         <View style={styles.container}>
             <TextInput
                 style={styles.input}
-                placeholder="Email"
-                value={correo}
-                onChangeText={setCorreo}
-                keyboardType="email-address"
-                autoCapitalize="none"
+                placeholder="Nombre de usuario"
+                value={usuario}
+                onChangeText={setUsuario}
             />
             <TextInput
                 style={styles.input}
@@ -48,10 +50,7 @@ export const LoginScreen: React.FC = () => {
                 onChangeText={setPass}
                 secureTextEntry
             />
-            <Button title="Login" onPress={() => handleLogin(correo, pass)} />
-            {/*<Text style={styles.link} onPress={() => navigation.navigate('Menu')}>
-                Don't have an account? Sign up
-            </Text>*/}
+            <Button title="Login" onPress={() => handleLogin(usuario, pass)} />
         </View>
     );
 };
